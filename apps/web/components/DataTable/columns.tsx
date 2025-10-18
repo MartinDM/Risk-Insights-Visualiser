@@ -66,21 +66,18 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     id: 'select',
     header: ({ table }: { table: Table<Person> }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        checked={table.getIsAllRowsSelected()}
+        onCheckedChange={(checked: boolean) => table.toggleAllRowsSelected(!!checked)}
         aria-label="Select all"
-        className="translate-y-[2px] m-2"
+        className="translate-y-[2px] m-2 border-2 border-white"
       />
     ),
     cell: ({ row }: { row: Row<Person> }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(checked: boolean) => row.toggleSelected(!!checked)}
         aria-label="Select row"
-        className="translate-y-[2px] m-2"
+        className="translate-y-[2px] m-2 border-2 border-lime-500"
       />
     ),
     enableSorting: false,

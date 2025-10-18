@@ -5,7 +5,7 @@ import {
     createContext,
     ReactNode,
     useContext,
-    useMemo,
+    useEffect,
     useState,
 } from 'react';
 import { createPeople } from '../../web/app/utils/helpers';
@@ -18,15 +18,18 @@ type PeopleContextType = {
 const PeopleContext = createContext<PeopleContextType | undefined>(undefined);
 
 export function PeopleProvider({ children }: { children: ReactNode }) {
-    const [people, setPeople] = useState<Person[]>(() => createPeople(100));
+    const [people, setPeople] = useState<Person[]>([]);
 
-    const refresh = () => setPeople(createPeople(100));
+    useEffect(() => {
+        const people = createPeople(20)
+        setPeople(people);
+    }, []);
+
+    const refresh = () => setPeople(createPeople(20));
     const getPersonById = (id: string) => people.find(p => p.id === id);
 
-    const value = useMemo(
-        () => ({ people, getPersonById, refresh }),
-        [people]
-    );
+    // Context value is stable enough without useMemo since the functions are defined in the component
+    const value = { people, getPersonById, refresh };
 
     return <PeopleContext.Provider value={value}>{children}</PeopleContext.Provider>;
 }

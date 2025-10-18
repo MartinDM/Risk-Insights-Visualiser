@@ -28,18 +28,13 @@ import { useMemo, useState } from 'react';
 import { Person } from '../../app/types/person';
 import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
+import { usePeople } from '@/contexts/PeopleContext';
+import { useTable } from "@/contexts/TableContext";
 
-interface DataTableViewOptionsProps<TData> {
-  table: Table<TData>;
-  valsHidden: boolean;
-  setValsHidden: (hidden: boolean) => void;
-}
+export function DataTableViewOptions() {
+  const { table, setValsHidden, valsHidden } = useTable()
+  const { refresh } = usePeople();
 
-export function DataTableViewOptions<TData>({
-  table,
-  setValsHidden,
-  valsHidden,
-}: DataTableViewOptionsProps<TData>) {
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
@@ -186,6 +181,15 @@ export function DataTableViewOptions<TData>({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      <Button
+        variant="outline"
+        onClick={() => {
+          refresh();
+          table.resetRowSelection(); // optional
+        }}
+      >
+        Re-gen people
+      </Button>
 
       {selectedIds[0] && (
         <>

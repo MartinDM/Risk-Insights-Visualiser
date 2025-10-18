@@ -10,30 +10,33 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table';
+
 // Local date range state removed; now sourced from context
 import { DataTableToolbar } from './data-table-toolbar';
 
 export function DataTable() {
-  const { table, valsHidden, setValsHidden } = useTable();
-
+  const { table } = useTable();
+  const hasData = table.getFilteredRowModel().rows.length > 0;
   const selectedCount = table.getSelectedRowModel().rows.length;
 
   return (
     <div className="w-full">
       {/* <DobForm /> */}
-      <p className="text-right text-xs font-bold">
-        Found {table.getFilteredRowModel().rows.length} results
-      </p>
-      <p className="text-right text-sm font-semibold text-zinc-200 mb-2">
-        {selectedCount} selected
-      </p>
+      {hasData ? (
+        <>
+          <p className="text-right text-xs font-bold">
+            Found {table.getFilteredRowModel().rows.length} results
+          </p>
+          <p className="text-right text-sm font-semibold text-zinc-200 mb-2">
+            {selectedCount} selected
+          </p>
+        </>
+      ) : (
+        <p className="text-center py-4">Loading...</p>
+      )}
 
       <div className="flex items-center py-4">
-        <DataTableToolbar
-          valsHidden={valsHidden}
-          setValsHidden={setValsHidden}
-          table={table}
-        />
+        <DataTableToolbar />
       </div>
 
       <div className="overflow-hidden rounded-md border">

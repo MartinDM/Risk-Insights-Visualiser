@@ -34,11 +34,12 @@ type TableContextType = {
   setValsHidden: (value: boolean) => void;
   dateRange: DateRange;
   setDateRange: React.Dispatch<React.SetStateAction<DateRange>>;
+  refresh: () => void;
 };
 const TableContext = createContext<TableContextType | undefined>(undefined);
 
 export function TableProvider({ children }: { children: ReactNode }) {
-  const { people: data } = usePeople();
+  const { people: data, refresh } = usePeople();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -53,23 +54,42 @@ export function TableProvider({ children }: { children: ReactNode }) {
     to: undefined,
   });
 
-  // Register table methods
+  // Register table methods 
+  const features = useMemo(
+    () => ({
+      getCoreRowModel: getCoreRowModel<Person>(),
+      getFilteredRowModel: getFilteredRowModel<Person>(),
+      getSortedRowModel: getSortedRowModel<Person>(),
+      getPaginationRowModel: getPaginationRowModel<Person>(),
+      getFacetedRowModel: getFacetedRowModel<Person>(),
+      getFacetedUniqueValues: getFacetedUniqueValues<Person>(),
+    }),
+    []
+  );
+
   const table = useReactTable<Person>({
     data,
     columns,
-    state: { sorting, rowSelection, columnFilters, columnVisibility },
+    state: {
+      sorting,
+      rowSelection,
+      columnFilters,
+      columnVisibility
+    },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     enableRowSelection: true,
-    initialState: { pagination: { pageSize: 50 } },
+    enableSorting: true,
+    enableMultiSort: true,
+    enableFilters: true,
+    manualPagination: false,
+    autoResetPageIndex: false,
+    initialState: {
+      pagination: { pageSize: 50 }
+    },
+    ...features,
   });
 
   // Apply date range filter to DOB column when dateRange changes
@@ -83,15 +103,20 @@ export function TableProvider({ children }: { children: ReactNode }) {
     }
   }, [dateRange, table]);
 
-  const value = useMemo(
-    () => ({ table, valsHidden, setValsHidden, dateRange, setDateRange }),
-    [table, valsHidden, dateRange],
-  );
 
-  return <TableContext.Provider value={value}>{children}</TableContext.Provider>;
+  return <TableContext.Provider
+    value={{
+      table,
+      valsHidden,
+      setValsHidden,
+      dateRange,
+      setDateRange,
+      refresh,
+    }}
+  > {children}</TableContext.Provider >;
 }
 
-export function useTable() {
+export function useTable(): TableContextType {
   const ctx = useContext(TableContext);
   if (!ctx) throw new Error('useTable must be used within a TableProvider');
   return ctx;

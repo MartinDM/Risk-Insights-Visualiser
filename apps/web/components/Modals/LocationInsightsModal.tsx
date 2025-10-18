@@ -1,6 +1,6 @@
 'use client';
-import { Globe, MapPin } from 'lucide-react';
-import { type Person } from '../../app/types/person';
+import { Globe, MapPin, TriangleAlert } from 'lucide-react';
+import { TransactionInsights, type Person } from '../../app/types/person';
 
 import {
   Dialog,
@@ -20,6 +20,12 @@ interface LocationInsightsModalProps {
   personId: string;
 }
 
+interface FrequentMerchant {
+  merchantName: string;
+  totalSpent: number;
+  transactionCount: number;
+}
+
 
 export function LocationInsightsModal({
   isOpen,
@@ -28,8 +34,10 @@ export function LocationInsightsModal({
 }: LocationInsightsModalProps) {
 
   const { people } = usePeople()
-  const person = fetchPersonById(people, personId);
-
+  const person: Person | undefined = fetchPersonById(people, personId);
+  const { unusualLocations, frequentMerchants } = person?.transactionInsights?.riskIndicators ?? { unusualLocations: [], frequentMerchants: [] };
+  type UnusualLocation = TransactionInsights['riskIndicators']['unusualLocations'][number];
+  console.log(person);
   if (!isOpen) return null;
 
   return (
@@ -38,10 +46,8 @@ export function LocationInsightsModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-          </DialogTitle>
-          <DialogDescription>
             Visualise the data we have for {person ? person.name : 'this person'}.
-          </DialogDescription>
+          </DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh]">
 
@@ -81,7 +87,9 @@ export function LocationInsightsModal({
                     </label>
                     <p className="text-sm flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
-                      {person.location.city}
+                      {person.location.city} since {person.locationInsights?.currentLocation?.since
+                        ? new Date(person.locationInsights.currentLocation.since).toLocaleDateString()
+                        : 'unknown'}
                     </p>
                   </div>
                 </div>
@@ -92,24 +100,30 @@ export function LocationInsightsModal({
               {person.locationInsights?.currentLocation?.coords?.lat && (
                 <section>
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Location Insights
+                    <TriangleAlert className="h-5 w-5" />
+                    Risk Indicators
                   </h3>
-
-                  <div className="mb-6">
-                    <h4 className="text-md font-medium mb-3">Interactive Map</h4>
-                  </div>
 
                   {/* Location Statistics */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">
-                        Risk Indicators
+                        Unusual Transactions
                       </label>
+                      {
+                        unusualLocations.map((location: UnusualLocation) =>
+                          <div className="mb-2">
+                            <h4>{location.location}</h4>
+                            <p className='text-sm'>${location.amount}</p>
+                            <p className='text-sm'>{new Date(location.date).toLocaleDateString()}</p>
+                            <p className='text-sm'><strong>Risk:</strong> {location.riskScore}</p>
+                          </div>
+                        )
+                      }
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">
-                        Avg. Stay Duration
+                        Avg. Stay Duration across {person.locationInsights?.locationHistory?.length} locations
                       </label>
                       <p className="text-lg font-semibold">
                         {person.locationInsights?.locationHistory?.length > 0
@@ -122,7 +136,22 @@ export function LocationInsightsModal({
                           : 0}{' '}
                         days
                       </p>
+                      <div className="mt-4">
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Frequent merchants
+                        </label>
+                        {
+                          frequentMerchants.map((merchant: FrequentMerchant) =>
+                            <div className="mb-2" key={merchant.merchantName}>
+                              <h4>{merchant.merchantName}</h4>
+                              <p className='text-sm'>${merchant.totalSpent}</p>
+                              <p className='text-sm'><strong>Transactions:</strong> {merchant.transactionCount}</p>
+                            </div>
+                          )
+                        }
+                      </div>
                     </div>
+
                   </div>
                 </section>
               )}
@@ -130,6 +159,6 @@ export function LocationInsightsModal({
           )}
         </ScrollArea>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

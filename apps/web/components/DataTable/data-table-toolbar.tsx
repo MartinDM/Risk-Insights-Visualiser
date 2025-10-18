@@ -1,30 +1,18 @@
 'use client';
-
-import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
-
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { DataTableViewOptions } from './data-table-view-options';
 
 import { risk } from '../../data';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
-import { usePeople } from "@/contexts/PeopleContext";
+import { useTable } from "@/contexts/TableContext";
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
-  valsHidden: boolean;
-  setValsHidden: (hidden: boolean) => void;
-}
+export function DataTableToolbar() {
 
-export function DataTableToolbar<TData>({
-  table,
-  valsHidden,
-  setValsHidden,
-}: DataTableToolbarProps<TData>) {
+  const { table } = useTable();
   const isFiltered = table.getState().columnFilters.length > 0;
   const riskColumn = table.getColumn('risk');
-  const { refresh } = usePeople()
   return (
     <div className="flex items-center space-between">
       <div className="flex flex-1 items-center space-x-2 mr-2">
@@ -50,16 +38,8 @@ export function DataTableToolbar<TData>({
             <X />
           </Button>
         )}
-        <Button onClick={() => {
-          refresh();
-          table.resetRowSelection(); // optional
-        }}>Refresh Data</Button>
       </div>
-      <DataTableViewOptions
-        setValsHidden={setValsHidden}
-        valsHidden={valsHidden}
-        table={table}
-      />
+      <DataTableViewOptions />
     </div>
   );
 }

@@ -25,7 +25,7 @@
   "typescript.preferences.quoteStyle": "double",
   // TypeScript Inlay Hints (toggle: off | on | live; bind Cmd+Alt+I to editor.action.toggleInlayHints if desired)
   "editor.inlayHints.enabled": "on",
-  "typescript.inlayHints.parameterNames.enabled": "all", // "all" | "literals" | "none"
+  "typescript.inlayHints.parameterNames.enabled": "none", // "all" | "literals" | "none"
   "typescript.inlayHints.parameterTypes.enabled": true,
   "typescript.inlayHints.variableTypes.enabled": false,
   "typescript.inlayHints.propertyDeclarationTypes.enabled": false,
