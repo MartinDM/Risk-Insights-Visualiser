@@ -67,9 +67,32 @@
   // ==== EDITOR BEHAVIOR ====
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
-  "editor.formatOnType": false, 
+  "editor.formatOnType": false,
+  // Consolidated codeActionsOnSave settings
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never", // keep explicit control of imports
+    "source.fixAll.eslint": "explicit"
+  },
+  // ==== PRETTIER INTEGRATION ====
+  // Use Prettier as the default formatter for supported languages
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Ensure Prettier runs before ESLint fix (ESLint will then fix lint-specific issues)
+  // Run ESLint fixes explicitly (Prettier handles formatting)
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
+  },
+  // Optional: per-language override if needed later
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   // ==== WORKSPACE & PERFORMANCE ====
   "typescript.disableAutomaticTypeAcquisition": false,
