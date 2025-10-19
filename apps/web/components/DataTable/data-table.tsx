@@ -11,13 +11,15 @@ import {
   TableRow,
 } from '@workspace/ui/components/table';
 
-// Local date range state removed; now sourced from context
 import { DataTableToolbar } from './data-table-toolbar';
+import { usePeople } from '@/contexts/PeopleContext';
 
 export function DataTable() {
   const { table } = useTable();
+  const { loaded } = usePeople();
   const hasData = table.getFilteredRowModel().rows.length > 0;
   const selectedCount = table.getSelectedRowModel().rows.length;
+  const rowCount = table.getRowModel().rows.length;
 
   return (
     <div className="w-full">
@@ -56,7 +58,7 @@ export function DataTable() {
           </TableHeader>
 
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {rowCount > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
@@ -72,7 +74,7 @@ export function DataTable() {
                   colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {!loaded ? 'Loading...' : 'No results.'}
                 </TableCell>
               </TableRow>
             )}

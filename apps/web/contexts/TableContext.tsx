@@ -26,7 +26,7 @@ import {
   useState,
 } from 'react';
 import { getColumns } from '../../web/components/DataTable/columns';
-import { usePeople } from "./PeopleContext";
+import { usePeople } from './PeopleContext';
 
 type TableContextType = {
   table: Table<Person>;
@@ -40,10 +40,8 @@ const TableContext = createContext<TableContextType | undefined>(undefined);
 
 export function TableProvider({ children }: { children: ReactNode }) {
   const { people: data, refresh } = usePeople();
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [valsHidden, setValsHidden] = useState(false);
@@ -54,7 +52,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
     to: undefined,
   });
 
-  // Register table methods 
+  // Register table methods
   const features = useMemo(
     () => ({
       getCoreRowModel: getCoreRowModel<Person>(),
@@ -64,7 +62,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
       getFacetedRowModel: getFacetedRowModel<Person>(),
       getFacetedUniqueValues: getFacetedUniqueValues<Person>(),
     }),
-    []
+    [],
   );
 
   const table = useReactTable<Person>({
@@ -74,7 +72,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
       sorting,
       rowSelection,
       columnFilters,
-      columnVisibility
+      columnVisibility,
     },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
@@ -87,7 +85,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
     manualPagination: false,
     autoResetPageIndex: false,
     initialState: {
-      pagination: { pageSize: 50 }
+      pagination: { pageSize: 50 },
     },
     ...features,
   });
@@ -103,17 +101,21 @@ export function TableProvider({ children }: { children: ReactNode }) {
     }
   }, [dateRange, table]);
 
-
-  return <TableContext.Provider
-    value={{
-      table,
-      valsHidden,
-      setValsHidden,
-      dateRange,
-      setDateRange,
-      refresh,
-    }}
-  > {children}</TableContext.Provider >;
+  return (
+    <TableContext.Provider
+      value={{
+        table,
+        valsHidden,
+        setValsHidden,
+        dateRange,
+        setDateRange,
+        refresh,
+      }}
+    >
+      {' '}
+      {children}
+    </TableContext.Provider>
+  );
 }
 
 export function useTable(): TableContextType {
