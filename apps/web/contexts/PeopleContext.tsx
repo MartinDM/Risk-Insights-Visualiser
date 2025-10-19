@@ -27,7 +27,8 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
     setPeople(createPeople(20));
   };
 
-  const getPersonById = (id: string) => people.find((p) => p.id === id);
+  const getPersonById: Person | undefined = (id: string) =>
+    people.find((p) => p.id === id);
 
   // Context value is stable enough without useMemo since the functions are defined in the component
   const value = { people, getPersonById, refresh, loaded };

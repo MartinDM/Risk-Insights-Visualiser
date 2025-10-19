@@ -28,7 +28,9 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
   const { table } = useTable();
 
   useEffect(() => {
-    if (isOpen && personId && fetchPersonById) {
+    if (!isOpen) return;
+
+    if (personId && fetchPersonById) {
       setLoading(true);
       setError(null);
 
@@ -47,7 +49,7 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
         setLoading(false);
       }
     }
-  }, [isOpen, personId, fetchPersonById]);
+  }, [isOpen, personId, table]);
 
   const formatDate = (date: Date | string) => {
     if (typeof date === 'string') return date;

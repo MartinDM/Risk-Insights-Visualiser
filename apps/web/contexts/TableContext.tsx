@@ -110,6 +110,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         dateRange,
         setDateRange,
         refresh,
+        rowSelection,
       }}
     >
       {' '}

@@ -14,63 +14,73 @@ const MapLoading = () => (
   </div>
 );
 export default function MapPage() {
-  const { id: personId } = useParams() as { id: string }
-  const { getPersonById } = usePeople();
-
-  const personData = getPersonById(personId)
+  const { id: personId } = useParams() as { id: string };
   const [loading, setLoading] = useState(false);
-  const [person, setPerson] = useState<Person>();
   const [address, setAddress] = useState<string>('');
+  const [locationCoords, setLocationCoords] = useState<{
+    latitude?: number;
+    longitude?: number;
+  }>(undefined);
   const [error, setError] = useState<string | null>();
 
+  const { getPersonById } = usePeople();
+  const person: Person = getPersonById(personId);
+
   useEffect(() => {
-    if (!personId) return;
+    if (!person) return;
+
     (async () => {
-      console.log('Person ID from params:', personId);
       setLoading(true);
       setError(null);
       try {
-
-        setPerson(personData);
-        console.log(personData);
-        if (!personData) {
+        if (!person) {
           setError('Person not found');
         }
-        const { lng, lat } = personData?.locationInsights?.currentLocation.coords || {
+        const { lng, lat } = person?.locationInsights?.currentLocation.coords || {
           lng: 0,
           lat: 0,
         };
+
         const geoCodeResponse = await getAddressFromPos({ lng, lat });
         const feature = geoCodeResponse.features[0];
         const street =
-          feature?.properties.context.street?.name ||
-          feature?.properties.context.address?.name;
+          feature.properties.context.street?.name ||
+          feature.properties.context.address?.name;
         const postcode = feature?.properties.context.postcode?.name;
         const country = feature?.properties.context.country?.name;
         const addressParts = [street, postcode, country].filter(Boolean);
+        setLocationCoords(feature.properties.coordinates);
         setAddress(addressParts.join(', ') || 'Address not found');
         setLoading(false);
       } catch (e) {
-        console.log(e);
         setError('Failed to load person data');
         setLoading(false);
       }
     })();
-  }, [personId]);
+  }, [person]);
 
   return (
-    <div className="h-screen w-full">
+    <div className="w-full h-[90vh] max-h-screen">
       <div className="mb-4 p-4">
-        <h1 className="text-3xl font-bold">Location Map</h1>
-        {person && <p> Last known location of {person ? person.name : 'this person'}</p>}
-        <p className="text-muted-foreground">
-          <MapPin />
-          View location insights and history
-        </p>
+        <h1 className="text-3xl font-bold mb-3">Location Map</h1>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            {person && (
+              <p> Last known location of {person ? person.name : 'this person'}</p>
+            )}
+            {address && <p>{address}</p>}
+          </div>
+          {locationCoords && (
+            <p>
+              Latitude: {locationCoords.latitude ?? 'N/A'}, Longitude:{' '}
+              {locationCoords.longitude ?? 'N/A'}
+            </p>
+          )}
+        </div>
       </div>
 
       <Suspense fallback={<MapLoading />}>
-        <div className="h-full w-full">
+        <div className="w-full">
           {person && !loading && <Map locationData={person.locationInsights} />}{' '}
         </div>
       </Suspense>

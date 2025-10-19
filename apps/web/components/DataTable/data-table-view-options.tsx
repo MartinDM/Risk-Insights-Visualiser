@@ -29,10 +29,10 @@ import { Person } from '../../app/types/person';
 import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
 import { usePeople } from '@/contexts/PeopleContext';
-import { useTable } from "@/contexts/TableContext";
+import { useTable } from '@/contexts/TableContext';
 
 export function DataTableViewOptions() {
-  const { table, setValsHidden, valsHidden } = useTable()
+  const { table, setValsHidden, valsHidden, rowSelection } = useTable();
   const { refresh } = usePeople();
 
   const [openInsights, setOpenInsights] = useState<boolean>(false);
@@ -40,11 +40,10 @@ export function DataTableViewOptions() {
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
 
   // Calculate selected data directly with memoization for better performance
-  const rowSelection = table.getState().rowSelection;
   const { selectedCount, selectedIds } = useMemo(() => {
     const rows = table.getSelectedRowModel().rows;
     return {
-      selectedCount: rows.length,
+      selectedCount: rowSelection.length,
       selectedIds: rows.map((row) => (row.original as Person).id),
     };
   }, [table, rowSelection]);
@@ -191,21 +190,17 @@ export function DataTableViewOptions() {
         Re-gen people
       </Button>
 
-      {selectedIds[0] && (
-        <>
-          <ProfileModal
-            isOpen={openPersonModal}
-            onOpenChange={setOpenPersonModal}
-            personId={selectedIds[0]}
-          />
+      <ProfileModal
+        isOpen={openPersonModal}
+        onOpenChange={setOpenPersonModal}
+        personId={selectedIds[0]}
+      />
 
-          <LocationInsightsModal
-            isOpen={openLocationModal}
-            onOpenChange={setOpenLocationModal}
-            personId={selectedIds[0]}
-          />
-        </>
-      )}
+      <LocationInsightsModal
+        isOpen={openLocationModal}
+        onOpenChange={setOpenLocationModal}
+        personId={selectedIds[0]}
+      />
     </div>
   );
 }

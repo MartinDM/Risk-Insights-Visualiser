@@ -63,17 +63,17 @@ function generateCreditCardTransaction(): CreditCardTransaction {
     ...(isOnline
       ? {}
       : {
-        location: {
-          city: faker.location.city(),
-          state: faker.location.state(),
-          country: faker.location.country(),
-          coords: {
-            lat: faker.location.latitude(),
-            lng: faker.location.longitude(),
+          location: {
+            city: faker.location.city(),
+            state: faker.location.state(),
+            country: faker.location.country(),
+            coords: {
+              lat: faker.location.latitude(),
+              lng: faker.location.longitude(),
+            },
+            address: faker.location.streetAddress(),
           },
-          address: faker.location.streetAddress(),
-        },
-      }),
+        }),
     cardLastFour: faker.finance.creditCardNumber().slice(-4),
     transactionType: faker.helpers.arrayElement(transactionTypes),
     isOnline,
@@ -260,7 +260,6 @@ export const getGeoData = async ({
 
 export const getAddressDetails = (): { address: string; coords: [number, number] } => {
   const address = fakerEN_GB.location.streetAddress(true);
-
   // Generate coordinates that correspond to realistic UK locations
   const coords = faker.location.nearbyGPSCoordinate({
     origin: [51.5074, -0.1278], // London
