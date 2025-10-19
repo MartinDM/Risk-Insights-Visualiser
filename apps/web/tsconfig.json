@@ -4,12 +4,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"],
-      "@ui/*": ["../../packages/ui/src/*"]
+      "@/utils/*": ["./app/utils/*"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
     },
     // Additional strict type checking options beyond base config
     "strictPropertyInitialization": true,
-    "exactOptionalPropertyTypes": true,
+    // Disabled to simplify TanStack Table column helper migration
+    "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true

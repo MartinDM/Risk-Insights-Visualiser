@@ -1,7 +1,4 @@
-import * as React from 'react';
-import { format } from 'date-fns';
-import { FaRegCalendarAlt } from 'react-icons/fa';
-import { useForm } from 'react-hook-form';
+"use client"
 import {
   Form,
   FormControl,
@@ -10,12 +7,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@workspace/ui/components/form';
-
-import { cn } from '@workspace/ui/lib/utils';
-import { Calendar } from '@workspace/ui/components/calendar';
+import { format } from 'date-fns';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { FaRegCalendarAlt } from 'react-icons/fa';
 import { Button } from '@workspace/ui/components/button';
+import { Calendar } from '@workspace/ui/components/calendar';
+import { cn } from '@workspace/ui/lib/utils';
 import { FormSchema } from '../../app/utils';
-
+import { useTable } from '@/contexts/TableContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -24,34 +24,30 @@ import {
   PopoverTrigger,
 } from '@workspace/ui/components/popover';
 
-export type DateRange = { from?: Date; to?: Date };
+export type DateRange = { from?: Date | undefined; to?: Date | undefined };
 
-export type DobFormProps = {
-  dateRange: DateRange;
-  setDateRange: React.Dispatch<React.SetStateAction<DateRange>>;
+type DobFormValues = {
+  dob: DateRange;
 };
 
-export const DobForm: React.FC<DobFormProps> = ({ setDateRange }) => {
+export const DobForm: React.FC = () => {
+
+  const { setDateRange } = useTable();
+
+  const form = useForm<DobFormValues>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: { dob: { from: undefined, to: undefined } }, // Ensure dob matches DateRange type
+  });
+
   const handleReset = () => {
     form.reset();
-    setDateRange({});
-  };
-  const onSubmit = (data: { dob: DateRange }) => {
-    setDateRange(data.dob);
+    setDateRange({ from: undefined, to: undefined });
   };
 
-  const form = useForm<{
-    dob: DateRange;
-  }>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      dob: {},
-    },
-  });
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 mb-5">
+        <form className="space-y-2 mb-5">
           <FormField
             control={form.control}
             name="dob"
@@ -86,7 +82,10 @@ export const DobForm: React.FC<DobFormProps> = ({ setDateRange }) => {
                     <Calendar
                       mode="range"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(range) => {
+                        field.onChange(range);
+                        setDateRange(range || { from: undefined, to: undefined });
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date('1900-01-01')
                       }
@@ -99,7 +98,6 @@ export const DobForm: React.FC<DobFormProps> = ({ setDateRange }) => {
             )}
           />
           <div className="flex justify-center gap-5 mb-4">
-            <Button type="submit">Submit</Button>
             <Button type="button" onClick={handleReset}>
               Reset
             </Button>

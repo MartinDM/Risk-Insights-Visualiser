@@ -1,24 +1,7 @@
 'use client';
-import * as React from 'react';
-import { useState, useMemo } from 'react';
-import { Person } from '../../app/types/person';
-import { DataTableToolbar } from './data-table-toolbar';
-import { PersonDataProvider } from '../../contexts/PersonDataContext';
-import { DobForm, DateRange } from '../DobForm/DobForm';
-import {
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from '@tanstack/react-table';
-
+import { DobForm } from '@/components/DobForm/DobForm';
+import { useTable } from '@/contexts/TableContext';
+import { flexRender } from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -28,123 +11,76 @@ import {
   TableRow,
 } from '@workspace/ui/components/table';
 
-import { format } from 'date-fns';
-import { getColumns } from '../../components/DataTable/columns';
+import { DataTableToolbar } from './data-table-toolbar';
+import { usePeople } from '@/contexts/PeopleContext';
 
-interface DataTableProps {
-  allUsers: Person[];
-}
-
-export function DataTable({ allUsers }: DataTableProps) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [valsHidden, setValsHidden] = useState(false);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [dateRange, setDateRange] = useState<DateRange>({});
-
-  const selectedCount = Object.keys(rowSelection).length;
-
-  const users: Person[] = useMemo(() => {
-    if (dateRange.from && dateRange.to) {
-      const from = format(dateRange.from, 'yyyy-MM-dd');
-      const to = format(dateRange.to, 'yyyy-MM-dd');
-      return allUsers
-        .filter((user) => user.dob >= from && user.dob <= to)
-        .sort((a, b) => a.dob.localeCompare(b.dob));
-    }
-    return allUsers;
-  }, [dateRange, allUsers]);
-
-  const columns = getColumns(valsHidden);
-
-  const table = useReactTable({
-    data: users,
-    columns,
-    state: {
-      sorting,
-      rowSelection,
-      columnFilters,
-      columnVisibility,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 50,
-      },
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnVisibilityChange: setColumnVisibility,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-  });
+export function DataTable() {
+  const { table } = useTable();
+  const { loaded } = usePeople();
+  const hasData = table.getFilteredRowModel().rows.length > 0;
+  const selectedCount = table.getSelectedRowModel().rows.length;
+  const rowCount = table.getRowModel().rows.length;
 
   return (
-    <PersonDataProvider table={table}>
-      <div className="w-full">
-        <DobForm dateRange={dateRange} setDateRange={setDateRange} />
-        <p className="text-right text-xs font-bold">
-          Found {table.getFilteredRowModel().rows.length} results
-        </p>
+    <div className="w-full">
+      {/* <DobForm /> */}
+      {hasData ? (
+        <>
+          <p className="text-right text-xs font-bold">
+            Found {table.getFilteredRowModel().rows.length} results
+          </p>
+          <p className="text-right text-sm font-semibold text-zinc-200 mb-2">
+            {selectedCount} selected
+          </p>
+        </>
+      ) : (
+        <p className="text-center py-4">Loading...</p>
+      )}
 
-        <p className="text-right text-sm font-semibold text-zinc-200 mb-2">
-          {selectedCount} selected
-        </p>
-        <div className="flex items-center py-4">
-          <DataTableToolbar
-            valsHidden={valsHidden}
-            setValsHidden={setValsHidden}
-            table={table}
-          />
-        </div>
-        <div className="overflow-hidden rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+      <div className="flex items-center py-4">
+        <DataTableToolbar />
       </div>
-    </PersonDataProvider>
+
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+
+          <TableBody>
+            {rowCount > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="h-24 text-center"
+                >
+                  {!loaded ? 'Loading...' : 'No results.'}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }

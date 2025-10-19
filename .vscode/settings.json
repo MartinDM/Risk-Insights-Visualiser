@@ -1,53 +1,83 @@
 {
-  // TypeScript Core Settings
-  "typescript.preferences.includePackageJsonAutoImports": "on",
-  "typescript.suggest.autoImports": true,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  // ==== TYPESCRIPT CONFIGURATION ====
+  // Core TypeScript Language Server Settings
   "typescript.validate.enable": true,
   "typescript.format.enable": true,
-  "typescript.suggest.completeFunctionCalls": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-
-  // TypeScript Error Reporting & Diagnostics
-  "typescript.reportStyleChecksAsWarnings": false,
+  // TypeScript Diagnostics & Error Reporting (CRITICAL for inline errors)
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.maxTsServerMemory": 8192,
+  "typescript.reportStyleChecksAsWarnings": false,
+  "typescript.check.npmIsInstalled": false,
   "typescript.surveys.enabled": false,
-
-  // Enhanced Problem Display
-  "problems.showCurrentInStatus": true,
-  "problems.sortOrder": "severity",
-
-  // TypeScript IntelliSense & Completions
+  // TypeScript Suggestions & Auto-imports
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.suggest.includeCompletionsForModuleExports": true,
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.preferences.includeCompletionsForModuleExports": true,
   "typescript.preferences.includeCompletionsWithSnippetText": true,
   "typescript.preferences.includeCompletionsForImportStatements": true,
   "typescript.preferences.includeCompletionsWithClassMemberSnippets": true,
-  "typescript.suggest.includeCompletionsForModuleExports": true,
-  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
   "typescript.preferences.quoteStyle": "double",
-
-  // TypeScript Inlay Hints
-  "typescript.inlayHints.parameterNames.enabled": "all",
-  "typescript.inlayHints.variableTypes.enabled": true,
+  // TypeScript Inlay Hints (toggle: off | on | live; bind Cmd+Alt+I to editor.action.toggleInlayHints if desired)
+  "editor.inlayHints.enabled": "on",
+  "typescript.inlayHints.parameterNames.enabled": "none", // "all" | "literals" | "none"
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": false,
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": false,
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-
-  // ESLint Configuration
+  "typescript.inlayHints.enumMemberValues.enabled": false,
+  // ==== EDITOR DIAGNOSTICS & ERROR DISPLAY ====
+  // Problems Panel Configuration
+  "problems.showCurrentInStatus": true,
+  "problems.sortOrder": "severity",
+  "problems.decorations.enabled": true,
+  // Editor Error & Warning Display
+  "editor.showUnused": true,
+  "editor.showDeprecated": true,
+  "editor.renderValidationDecorations": "on",
+  "editor.semanticHighlighting.enabled": true,
+  "editor.lightbulb.enabled": "on",
+  "editor.parameterHints.enabled": true,
+  // Squiggly Lines & Error Indicators
+  "editor.renderLineHighlight": "all",
+  "editor.occurrencesHighlight": "singleFile",
+  "editor.selectionHighlight": true,
+  "editor.wordHighlight": true,
+  // ==== ESLINT CONFIGURATION ====
   "eslint.enable": true,
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.run": "onType",
+  // Enable flat config support (required since repo uses eslint.config.mjs)
+  "eslint.experimental.useFlatConfig": true,
+  // Show full problems (avoid quiet mode)
+  "eslint.quiet": false,
   "eslint.workingDirectories": ["./apps/web"],
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-
-  // Editor Settings
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  // ==== FILE ASSOCIATIONS & LANGUAGE MODES ====
+  "files.associations": {
+    "*.tsx": "typescriptreact",
+    "*.ts": "typescript"
   },
-  "editor.formatOnSave": true
+  // ==== EDITOR BEHAVIOR ====
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false, 
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  // ==== WORKSPACE & PERFORMANCE ====
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "typescript.locale": "auto",
+  "typescript.suggest.enabled": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  // ==== DEBUGGING AIDS (temporary for troubleshooting) ====
+  // Enable verbose logging (remove after testing)
+  "typescript.tsserver.log": "normal",
+  "typescript.tsserver.trace": "off"
 }

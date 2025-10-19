@@ -1,7 +1,7 @@
 import type {
   LocationHistory,
-  ResidenceHistory,
   LocationInsights,
+  ResidenceHistory,
 } from '../../app/types/person';
 
 export function createCurrentLocationPopupHTML(

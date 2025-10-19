@@ -13,15 +13,15 @@ import {
 type LegendProps = {
   showResidenceHistory: boolean;
   showLocationHistory: boolean;
-  onToggleResidenceHistory: () => void;
-  onToggleLocationHistory: () => void;
+  setShowResidenceHistoryAction: () => void;
+  setShowLocationHistoryAction: () => void;
 };
 
 export function Legend({
   showResidenceHistory,
   showLocationHistory,
-  onToggleResidenceHistory,
-  onToggleLocationHistory,
+  setShowResidenceHistoryAction,
+  setShowLocationHistoryAction,
 }: LegendProps) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -33,7 +33,7 @@ export function Legend({
             <Checkbox
               id="residence-history"
               checked={showResidenceHistory}
-              onCheckedChange={onToggleResidenceHistory}
+              onCheckedChange={setShowResidenceHistoryAction}
               className="bg-black border-black data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
             <Label
@@ -48,7 +48,7 @@ export function Legend({
             <Checkbox
               id="location-history"
               checked={showLocationHistory}
-              onCheckedChange={onToggleLocationHistory}
+              onCheckedChange={setShowLocationHistoryAction}
               className="bg-black border-black data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
             <Label

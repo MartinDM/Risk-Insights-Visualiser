@@ -4,7 +4,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strictPropertyInitialization": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true

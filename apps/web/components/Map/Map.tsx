@@ -1,25 +1,27 @@
-import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { Legend } from './components/Legend';
-
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useEffect, useRef, useState } from 'react';
 import type { LocationInsights } from '../../app/types/person';
+import { Legend } from './components/Legend';
 import {
-  createResidencePopupHTML,
-  createLocationPopupHTML,
   createCurrentLocationPopupHTML,
+  createLocationPopupHTML,
+  createResidencePopupHTML,
   generateCurrentLocationMarker,
-  generateResidenceMarker,
   generateLocationMarker,
+  generateResidenceMarker,
 } from './helpers';
 
 import { Lightbulb, LightbulbOff } from 'lucide-react';
 
-export function Map({ locationData }: { locationData: LocationInsights }) {
+export function Map({ locationData }: { locationData?: LocationInsights }) {
+
+  if (!locationData) return;
+
   const { lat, lng } = locationData?.currentLocation?.coords || { lat: 0, lng: 0 };
 
-  const mapRef = useRef<mapboxgl.Map>();
-  const mapContainerRef = useRef<HTMLDivElement>();
+  const mapRef = useRef<mapboxgl.Map | undefined>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const [zoom, setZoom] = useState(14.5);
   const [center, setCenter] = useState<[number, number]>([lng, lat]);
@@ -29,20 +31,9 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   const [showResidenceHistory, setShowResidenceHistory] = useState(true);
   const [showLocationHistory, setShowLocationHistory] = useState(true);
 
-  // Initialize map once
-  useEffect(() => {
-    if (!mapContainerRef.current || !locationData?.currentLocation?.coords) {
-      return;
-    }
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: mapStyle,
-      center,
-      zoom,
-    });
-
+  const addCurrentLocationMarker = () => {
     // Add current location marker (always visible)
     if (locationData?.currentLocation) {
       const { lng, lat } = locationData.currentLocation.coords;
@@ -50,33 +41,35 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
         createCurrentLocationPopupHTML(locationData.currentLocation),
       );
-      new mapboxgl.Marker(markerEl)
-        .setLngLat([lng, lat])
-        .setPopup(popup)
-        .addTo(mapRef.current);
+
+      if (mapRef.current) {
+
+        new mapboxgl.Marker(markerEl)
+          .setLngLat([lng, lat])
+          .setPopup(popup)
+          .addTo(mapRef.current!);
+
+        mapRef.current.on('move', () => {
+          if (mapRef.current) {
+            const mapCenter = mapRef.current.getCenter();
+            const mapZoom = mapRef.current.getZoom();
+            setCenter([mapCenter.lng, mapCenter.lat]);
+            setZoom(mapZoom);
+          }
+        });
+      }
+      return () => {
+        mapRef.current?.remove();
+      };
     }
+  }
 
-    mapRef.current.on('move', () => {
-      const mapCenter = mapRef.current.getCenter();
-      const mapZoom = mapRef.current.getZoom();
-      setCenter([mapCenter.lng, mapCenter.lat]);
-      setZoom(mapZoom);
-    });
-
-    return () => {
-      mapRef.current?.remove();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Separate effect for managing residence history markers
-  useEffect(() => {
+  const addResidenceMarkers = () => {
     if (!mapRef.current || !locationData?.residenceHistory) return;
 
     const markers: mapboxgl.Marker[] = [];
 
     if (showResidenceHistory) {
-      console.log('Adding residence history markers');
       locationData.residenceHistory.forEach((residence) => {
         const { lng, lat } = residence.location.coords;
         const markerEl = generateResidenceMarker(!residence.endDate);
@@ -86,7 +79,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         const marker = new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat])
           .setPopup(popup)
-          .addTo(mapRef.current);
+          .addTo(mapRef.current!);
         markers.push(marker);
       });
     }
@@ -94,11 +87,10 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [showResidenceHistory, locationData?.residenceHistory]);
+  }
 
-  // Separate effect for managing location history markers
-  useEffect(() => {
-    if (!mapRef.current || !locationData?.locationHistory) return;
+  const addLocationMarkers = () => {
+    if (!mapRef.current) return;
 
     const markers: mapboxgl.Marker[] = [];
 
@@ -106,7 +98,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       console.log('Adding location history markers');
       locationData.locationHistory.forEach((location) => {
         const { lng, lat } = location.location.coords;
-        const markerEl = generateLocationMarker(location);
+        const markerEl = generateLocationMarker();
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
           createLocationPopupHTML(location),
         );
@@ -121,6 +113,31 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
+  }
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    addCurrentLocationMarker()
+
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: mapStyle,
+      center,
+      zoom,
+    });
+
+  }, []);
+
+
+  // Separate effect for managing residence history markers
+  useEffect(() => {
+    addResidenceMarkers()
+  }, [showResidenceHistory, locationData?.residenceHistory]);
+
+  useEffect(() => {
+    addLocationMarkers();
+
   }, [showLocationHistory, locationData?.locationHistory]);
 
   const changeStyle = (newStyle: string) => {
@@ -129,6 +146,12 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       mapRef.current.setStyle(newStyle);
     }
   };
+
+
+  mapRef.current.on('style.load', () => {
+    // optionally re-add markers if style reset clears them
+  });
+
 
   const toggleStyle = () => {
     const newStyle = isDark
@@ -140,11 +163,13 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   };
 
   const handleReset = () => {
-    mapRef?.current.flyTo({
-      center: [lng, lat],
-      zoom: 14.5,
-    });
-  };
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 14.5,
+      });
+    };
+  }
 
   return (
     <div className={`relative h-full w-full flex-1`}>
@@ -162,8 +187,8 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         <Legend
           showResidenceHistory={showResidenceHistory}
           showLocationHistory={showLocationHistory}
-          onToggleResidenceHistory={() => setShowResidenceHistory(!showResidenceHistory)}
-          onToggleLocationHistory={() => setShowLocationHistory(!showLocationHistory)}
+          setShowResidenceHistoryAction={() => setShowResidenceHistory(!showResidenceHistory)}
+          setShowLocationHistoryAction={() => setShowLocationHistory(!showLocationHistory)}
         />
         <div className={`flex gap-2`}>
           <button

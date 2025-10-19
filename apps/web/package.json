@@ -10,6 +10,9 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:typecheck": "vitest run typescript-errors",
     "vet": "npm run lint && npm run typecheck"
   },
   "dependencies": {
@@ -19,8 +22,6 @@
     "@types/mapbox": "^1.6.45",
     "@workspace/ui": "workspace:*",
     "date-fns": "^4.1.0",
-    "leaflet": "^1.9.4",
-    "leaflet-defaulticon-compatibility": "^0.1.2",
     "lucide-react": "^0.475.0",
     "mapbox-gl": "^3.15.0",
     "next": "^15.4.5",
@@ -29,7 +30,7 @@
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
     "react-icons": "^5.5.0",
-    "react-leaflet": "^5.0.0",
+    "react-loader-spinner": "^1.4.7",
     "sonner": "^2.0.7",
     "zod": "^3.25.76"
   },
@@ -37,12 +38,12 @@
     "@eslint/js": "^9.36.0",
     "@faker-js/faker": "^10.0.0",
     "@next/eslint-plugin-next": "^15.4.5",
-    "@types/leaflet": "^1.9.20",
     "@types/node": "^20.19.9",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
+    "@vitest/ui": "^3.2.4",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9.32.0",
@@ -54,6 +55,8 @@
     "eslint-plugin-sort-class-members": "^1.21.0",
     "globals": "^15.15.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.0"
+    "typescript-eslint": "^8.39.0",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4"
   }
 }

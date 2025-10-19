@@ -1,49 +1,43 @@
 'use client';
-import { useState, useMemo } from 'react';
 import { Table } from '@tanstack/react-table';
-import {
-  Settings2,
-  Globe,
-  Eye,
-  EyeOff,
-  User,
-  Users,
-  BarChart3,
-  MapPin,
-  Briefcase,
-  TrendingUp,
-} from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
+import {
+  BarChart3,
+  Briefcase,
+  Eye,
+  EyeOff,
+  Globe,
+  MapPin,
+  Settings2,
+  TrendingUp,
+  User,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { Person } from '../../app/types/person';
-import { ProfileModal } from '../Modals/ProfileModal';
 import { LocationInsightsModal } from '../Modals';
-import { MapModal } from '../Modals/MapModal';
+import { ProfileModal } from '../Modals/ProfileModal';
+import { usePeople } from '@/contexts/PeopleContext';
+import { useTable } from "@/contexts/TableContext";
 
-interface DataTableViewOptionsProps<TData> {
-  table: Table<TData>;
-  valsHidden: boolean;
-  setValsHidden: (hidden: boolean) => void;
-}
+export function DataTableViewOptions() {
+  const { table, setValsHidden, valsHidden } = useTable()
+  const { refresh } = usePeople();
 
-export function DataTableViewOptions<TData>({
-  table,
-  setValsHidden,
-  valsHidden,
-}: DataTableViewOptionsProps<TData>) {
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
-  const [openMapModal, setOpenMapModal] = useState<boolean>(false);
 
   // Calculate selected data directly with memoization for better performance
   const rowSelection = table.getState().rowSelection;
@@ -53,7 +47,6 @@ export function DataTableViewOptions<TData>({
       selectedCount: rows.length,
       selectedIds: rows.map((row) => (row.original as Person).id),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table, rowSelection]);
 
   const handleValuesToggle = () => {
@@ -62,10 +55,6 @@ export function DataTableViewOptions<TData>({
 
   const handleLocationModal = () => {
     setOpenLocationModal(true);
-  };
-
-  const handleMapModal = () => {
-    setOpenMapModal(true);
   };
 
   const handlePersonProfile = () => {
@@ -145,14 +134,9 @@ export function DataTableViewOptions<TData>({
                     <MapPin className="mr-2 h-4 w-4" />
                     Location History
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleMapModal();
-                    }}
-                  >
+                  <DropdownMenuItem>
                     <Briefcase className="mr-2 h-4 w-4" />
-                    Map Visualiser
+                    <Link href={`map/${selectedIds[0]}`}>Map Visualiser</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -197,6 +181,15 @@ export function DataTableViewOptions<TData>({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      <Button
+        variant="outline"
+        onClick={() => {
+          refresh();
+          table.resetRowSelection(); // optional
+        }}
+      >
+        Re-gen people
+      </Button>
 
       {selectedIds[0] && (
         <>
@@ -209,12 +202,6 @@ export function DataTableViewOptions<TData>({
           <LocationInsightsModal
             isOpen={openLocationModal}
             onOpenChange={setOpenLocationModal}
-            personId={selectedIds[0]}
-          />
-
-          <MapModal
-            isOpen={openMapModal}
-            onOpenChange={setOpenMapModal}
             personId={selectedIds[0]}
           />
         </>

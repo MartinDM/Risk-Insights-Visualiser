@@ -1,7 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Person } from '../../app/types/person';
-import { MapPin, CreditCard, Loader2, User } from 'lucide-react';
+import { useTable } from '@/contexts/TableContext';
+import { Badge } from '@workspace/ui/components/badge';
 import {
   Dialog,
   DialogContent,
@@ -9,11 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog';
-import { Badge } from '@workspace/ui/components/badge';
-import { Separator } from '@workspace/ui/components/separator';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { usePersonData } from '../../contexts/PersonDataContext';
+import { Separator } from '@workspace/ui/components/separator';
+import { CreditCard, Loader2, MapPin, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Person } from '../../app/types/person';
 
+import { fetchPersonById } from '../../app/utils/helpers';
 interface ProfileModaProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,10 +22,10 @@ interface ProfileModaProps {
 }
 
 export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProps) {
-  const { fetchPersonById } = usePersonData();
   const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { table } = useTable();
 
   useEffect(() => {
     if (isOpen && personId && fetchPersonById) {
@@ -32,7 +33,10 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
       setError(null);
 
       try {
-        const personData = fetchPersonById(personId);
+        const personData = fetchPersonById(
+          table.getCoreRowModel().rows.map((r) => r.original),
+          personId,
+        );
         setPerson(personData || null);
         if (!personData) {
           setError('Person not found');
@@ -212,7 +216,7 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
                                   {location.location.city}, {location.location.country}
                                 </p>
                                 <p className="text-xs text-muted-foreground capitalize">
-                                  {location.type}
+                                  {location.locationType}
                                 </p>
                               </div>
                               <div className="text-right">

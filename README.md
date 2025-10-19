@@ -110,7 +110,6 @@ pnpm dlx shadcn@latest add <component>
 - **Shared UI Components** - Reusable shadcn/ui components in `@workspace/ui`
 - **Consistent Tooling** - Centralized TypeScript and ESLint configurations
 - **Faster Builds** - Turborepo caching and parallel execution
-- **Type Safety** - Strict TypeScript with `exactOptionalPropertyTypes`
 
 ## Learn More
 

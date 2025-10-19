@@ -36,11 +36,12 @@ export default [
       '.stylelintcache',
     ],
   },
-  ...nextJsConfig,
+  ...(Array.isArray(nextJsConfig) ? nextJsConfig : [nextJsConfig]),
   {
     // Override or add additional rules specific to this app
     files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
+      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
       'no-console': 'off', // Allow all console statements
       // Add any app-specific rules here
     },

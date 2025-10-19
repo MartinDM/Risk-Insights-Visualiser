@@ -1,13 +1,12 @@
+import { faker, fakerEN_GB } from '@faker-js/faker';
+import { MapboxReverseGeocodeResponse } from '../types/location';
 import {
-  Person,
   CreditCardTransaction,
   LocationHistory,
   LocationInsights,
+  Person,
   TransactionInsights,
 } from '../types/person';
-import { fakerEN_GB } from '@faker-js/faker';
-import { faker } from '@faker-js/faker';
-import { MapboxReverseGeocodeResponse } from '../types/location';
 
 const merchantCategories = [
   'grocery',
@@ -64,17 +63,17 @@ function generateCreditCardTransaction(): CreditCardTransaction {
     ...(isOnline
       ? {}
       : {
-          location: {
-            city: faker.location.city(),
-            state: faker.location.state(),
-            country: faker.location.country(),
-            coords: {
-              lat: faker.location.latitude(),
-              lng: faker.location.longitude(),
-            },
-            address: faker.location.streetAddress(),
+        location: {
+          city: faker.location.city(),
+          state: faker.location.state(),
+          country: faker.location.country(),
+          coords: {
+            lat: faker.location.latitude(),
+            lng: faker.location.longitude(),
           },
-        }),
+          address: faker.location.streetAddress(),
+        },
+      }),
     cardLastFour: faker.finance.creditCardNumber().slice(-4),
     transactionType: faker.helpers.arrayElement(transactionTypes),
     isOnline,
@@ -225,6 +224,13 @@ function generateTransactionInsights(
     },
   };
 }
+
+export const formatCurrency = (amount: number, currency = 'USD') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+  }).format(amount);
+};
 
 export const getGeoData = async ({
   lng,
@@ -397,4 +403,8 @@ export function createPeople(count: number): Person[] {
       transactionInsights: generateTransactionInsights(transactions),
     };
   });
+}
+
+export function fetchPersonById(people: Person[], id: string): Person | undefined {
+  return people.find((p) => p.id === id);
 }

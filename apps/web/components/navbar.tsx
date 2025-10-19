@@ -18,10 +18,7 @@ export function Navbar() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuLink
-              asChild
-              className={navigationMenuTriggerStyle()}
-            >
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
               <Link href="/">Home</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
