@@ -35,6 +35,7 @@ type TableContextType = {
   dateRange: DateRange;
   setDateRange: React.Dispatch<React.SetStateAction<DateRange>>;
   refresh: () => void;
+  selectionCount: number;
 };
 const TableContext = createContext<TableContextType | undefined>(undefined);
 
@@ -45,7 +46,6 @@ export function TableProvider({ children }: { children: ReactNode }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [valsHidden, setValsHidden] = useState(false);
-
   const columns = useMemo(() => getColumns(valsHidden), [valsHidden]);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: undefined,
@@ -90,6 +90,11 @@ export function TableProvider({ children }: { children: ReactNode }) {
     ...features,
   });
 
+  const selectionCount = useMemo(
+    () => table.getSelectedRowModel().rows.length,
+    [rowSelection, table],
+  );
+
   // Apply date range filter to DOB column when dateRange changes
   useEffect(() => {
     const col = table.getColumn('dob');
@@ -110,7 +115,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         dateRange,
         setDateRange,
         refresh,
-        rowSelection,
+        selectionCount,
       }}
     >
       {' '}

@@ -26,7 +26,7 @@ export function Legend({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex flex-col bg-gray-800 p-1 border-gray-800 opacity-80 rounded-sm border-2">
+    <div className="flex flex-col bg-gray-800 p-1 border-gray-800 opacity-80 rounded-sm border-2 legend">
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
         <CollapsibleContent className="flex flex-col gap-2 p-4">
           <div className="flex items-center gap-3 mb-2">
@@ -41,7 +41,7 @@ export function Legend({
               className="flex items-center justify-between flex-1"
             >
               Show Residences
-              <Home className="h-4 w-4 text-green-600" />
+              <Home className="h-4 w-4 text-green-600 h-[30px] w-[30px]" />
             </Label>
           </div>
           <div className="flex items-center gap-3 mb-4">
@@ -56,12 +56,16 @@ export function Legend({
               className="flex items-center justify-between flex-1"
             >
               Show Location History
-              <LocateFixed className="h-4 w-4 text-red-500" />
+              <LocateFixed className="h-4 w-4 h-[30px] w-[30px] text-red-500" />
             </Label>
           </div>
         </CollapsibleContent>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-full justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-between hover:bg-transparent"
+          >
             <h4 className="text-sm font-semibold">Markers</h4>
             {isOpen ? (
               <ChevronDown className="h-4 w-4" />

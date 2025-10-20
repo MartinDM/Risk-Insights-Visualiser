@@ -20,11 +20,12 @@ export default function MapPage() {
   const [locationCoords, setLocationCoords] = useState<{
     latitude?: number;
     longitude?: number;
-  }>(undefined);
+  }>();
+
   const [error, setError] = useState<string | null>();
 
   const { getPersonById } = usePeople();
-  const person: Person = getPersonById(personId);
+  const person = getPersonById(personId);
 
   useEffect(() => {
     if (!person) return;
@@ -44,12 +45,12 @@ export default function MapPage() {
         const geoCodeResponse = await getAddressFromPos({ lng, lat });
         const feature = geoCodeResponse.features[0];
         const street =
-          feature.properties.context.street?.name ||
-          feature.properties.context.address?.name;
+          feature?.properties.context.street?.name ||
+          feature?.properties.context.address?.name;
         const postcode = feature?.properties.context.postcode?.name;
         const country = feature?.properties.context.country?.name;
         const addressParts = [street, postcode, country].filter(Boolean);
-        setLocationCoords(feature.properties.coordinates);
+        setLocationCoords(feature?.properties.coordinates);
         setAddress(addressParts.join(', ') || 'Address not found');
         setLoading(false);
       } catch (e) {
@@ -79,11 +80,9 @@ export default function MapPage() {
         </div>
       </div>
 
-      <Suspense fallback={<MapLoading />}>
-        <div className="w-full">
-          {person && !loading && <Map locationData={person.locationInsights} />}{' '}
-        </div>
-      </Suspense>
+      <div className="w-full">
+        {person && !loading && <Map locationData={person.locationInsights} />}{' '}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 'use client';
-import { Table } from '@tanstack/react-table';
 import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
@@ -24,7 +23,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Person } from '../../app/types/person';
 import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
@@ -32,20 +31,18 @@ import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
 
 export function DataTableViewOptions() {
-  const { table, setValsHidden, valsHidden } = useTable();
+  const { table, setValsHidden, valsHidden, selectionCount } = useTable();
   const { refresh } = usePeople();
-  const selectedCount = table.getSelectedRowModel().rows.length;
 
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const { selectedIds } = useMemo(() => {
+  useEffect(() => {
     const rows = table.getSelectedRowModel().rows;
-    return {
-      selectedIds: rows.map((row) => (row.original as Person).id),
-    };
-  }, [table]);
+    setSelectedIds(rows.map((row) => (row.original as Person).id));
+  }, [table.getState().rowSelection]);
 
   const handleValuesToggle = () => {
     setValsHidden(!valsHidden);
@@ -112,11 +109,11 @@ export function DataTableViewOptions() {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 border-dashed">
               <BarChart3 className="h-4 w-4" />
-              Insights ({selectedCount})
+              Insights ({selectionCount})
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64" align="start">
-            {selectedCount === 1 ? (
+            {selectionCount === 1 ? (
               <>
                 <DropdownMenuLabel className="flex items-center gap-2 bg-[var(--group-header)]">
                   <User className="h-4 w-4" />
@@ -153,7 +150,7 @@ export function DataTableViewOptions() {
               <>
                 <DropdownMenuLabel className="flex items-center gap-2">
                   <Users className="h-4 w-4 bg-[var(--group-header)]" />
-                  Group Insights ({selectedCount} people)
+                  Group Insights ({selectionCount} people)
                 </DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem onClick={handleGroupInsights}>
@@ -192,13 +189,13 @@ export function DataTableViewOptions() {
       <ProfileModal
         isOpen={openPersonModal}
         onOpenChange={setOpenPersonModal}
-        personId={selectedIds[0]}
+        personId={selectedIds[0] || ''}
       />
 
       <LocationInsightsModal
         isOpen={openLocationModal}
         onOpenChange={setOpenLocationModal}
-        personId={selectedIds[0]}
+        personId={selectedIds[0] || ''}
       />
     </div>
   );

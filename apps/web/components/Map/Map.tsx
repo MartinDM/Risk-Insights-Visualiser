@@ -13,15 +13,17 @@ import {
   generateResidenceMarker,
 } from './helpers';
 
+import styles from './map.module.scss';
+
 import { Lightbulb, LightbulbOff } from 'lucide-react';
 
 export function Map({ locationData }: { locationData: LocationInsights }) {
   const { lat, lng } = locationData?.currentLocation?.coords || { lat: 0, lng: 0 };
 
-  const mapRef = useRef<mapboxgl.Map | undefined>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [zoom, setZoom] = useState(10);
+  const [zoom, setZoom] = useState(11);
   const [center, setCenter] = useState<[number, number]>([lng, lat]);
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isDark, setIsDark] = useState(false);
@@ -29,7 +31,11 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   const [showResidenceHistory, setShowResidenceHistory] = useState(true);
   const [showLocationHistory, setShowLocationHistory] = useState(true);
 
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
+    console.error('Missing Mapbox token');
+    return;
+  }
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
   const addResidenceMarkers = useCallback(() => {
     if (!mapRef.current || !locationData?.residenceHistory) return;
@@ -46,7 +52,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         const marker = new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat])
           .setPopup(popup)
-          .addTo(mapRef.current);
+          .addTo(mapRef.current!);
         markers.push(marker);
       });
     }
@@ -54,7 +60,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [mapRef, locationData?.residenceHistory, showResidenceHistory]);
+  }, [locationData?.residenceHistory, showResidenceHistory]);
 
   const addLocationMarkers = useCallback(() => {
     if (!mapRef.current) return;
@@ -71,7 +77,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         const marker = new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat])
           .setPopup(popup)
-          .addTo(mapRef.current);
+          .addTo(mapRef.current!);
         markers.push(marker);
       });
     }
@@ -79,9 +85,10 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [mapRef, locationData?.locationHistory, showLocationHistory]);
+  }, [locationData?.locationHistory, showLocationHistory]);
 
   const addCurrentLocationMarker = () => {
+    if (!mapRef.current || !locationData?.currentLocation) return;
     // Add current location marker (always visible)
     if (locationData?.currentLocation) {
       const { lng, lat } = locationData.currentLocation.coords;
@@ -94,7 +101,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat])
           .setPopup(popup)
-          .addTo(mapRef.current);
+          .addTo(mapRef.current!);
       }
       return () => {
         mapRef.current?.remove();
@@ -105,8 +112,6 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    addCurrentLocationMarker();
-
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: mapStyle,
@@ -114,23 +119,32 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       zoom,
     });
 
-    mapRef.current.on('move', () => {
-      const mapCenter = mapRef.current.getCenter();
-      const mapZoom = mapRef.current.getZoom();
-      setCenter([mapCenter.lng, mapCenter.lat]);
-      setZoom(mapZoom);
-      return () => {
-        mapRef.current?.off('move', onMapMove);
-      };
-    });
+    // Move listener
+    const handleMove = () => {
+      const c = mapRef.current!.getCenter();
+      setCenter([c.lng, c.lat]);
+      setZoom(mapRef.current!.getZoom());
+    };
+    mapRef.current.on('move', handleMove);
+
+    // Add persistent current location marker after map exists
+    addCurrentLocationMarker();
+
+    return () => {
+      mapRef.current?.off('move', handleMove);
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
-    addLocationMarkers();
+    const cleanup = addLocationMarkers();
+    return cleanup;
   }, [addLocationMarkers]);
 
   useEffect(() => {
-    addResidenceMarkers();
+    const cleanup = addResidenceMarkers();
+    return cleanup;
   }, [addResidenceMarkers]);
 
   const changeStyle = (newStyle: string) => {
@@ -159,8 +173,10 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   };
 
   return (
-    <div className={`h-full w-full`}>
-      <div ref={mapContainerRef} className={`h-full w-full`} />
+    <div
+      className={`relative w-full h-screen max-h-[70vh] ${styles.map} ${isDark ? styles.mapDark : ''}`}
+    >
+      <div ref={mapContainerRef} className="h-full" />
       <div
         className={`absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10`}
       >

@@ -124,3 +124,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+.mapboxgl-popup-close-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: black;
+  font-size: 16px;
+}
+
+.light .legend,
+.light .legend button {
+  color: white;
+}

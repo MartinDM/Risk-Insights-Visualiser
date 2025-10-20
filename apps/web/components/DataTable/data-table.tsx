@@ -15,10 +15,9 @@ import { DataTableToolbar } from './data-table-toolbar';
 import { usePeople } from '@/contexts/PeopleContext';
 
 export function DataTable() {
-  const { table } = useTable();
+  const { table, selectionCount } = useTable();
   const { loaded } = usePeople();
   const hasData = table.getFilteredRowModel().rows.length > 0;
-  const selectedCount = table.getSelectedRowModel().rows.length;
   const rowCount = table.getRowModel().rows.length;
 
   return (
@@ -29,8 +28,8 @@ export function DataTable() {
           <p className="text-right text-xs font-bold">
             Found {table.getFilteredRowModel().rows.length} results
           </p>
-          <p className="text-right text-sm font-semibold text-zinc-200 mb-2">
-            {selectedCount} selected
+          <p className="text-right text-sm font-semibold mb-2">
+            {selectionCount} selected
           </p>
         </>
       ) : (
