@@ -32,21 +32,20 @@ import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
 
 export function DataTableViewOptions() {
-  const { table, setValsHidden, valsHidden, rowSelection } = useTable();
+  const { table, setValsHidden, valsHidden } = useTable();
   const { refresh } = usePeople();
+  const selectedCount = table.getSelectedRowModel().rows.length;
 
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
 
-  // Calculate selected data directly with memoization for better performance
-  const { selectedCount, selectedIds } = useMemo(() => {
+  const { selectedIds } = useMemo(() => {
     const rows = table.getSelectedRowModel().rows;
     return {
-      selectedCount: rowSelection.length,
       selectedIds: rows.map((row) => (row.original as Person).id),
     };
-  }, [table, rowSelection]);
+  }, [table]);
 
   const handleValuesToggle = () => {
     setValsHidden(!valsHidden);
