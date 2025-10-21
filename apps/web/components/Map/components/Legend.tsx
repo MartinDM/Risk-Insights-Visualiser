@@ -41,22 +41,22 @@ export function Legend({
               className="flex items-center justify-between flex-1"
             >
               Show Residences
-              <Home className="h-4 w-4 text-green-600 h-[30px] w-[30px]" />
+              <Home className="h-4 w-4 text-green-600" />
             </Label>
           </div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mt-2">
             <Checkbox
               id="location-history"
               checked={showLocationHistory}
               onCheckedChange={setShowLocationHistoryAction}
-              className="bg-black border-black data-[state=checked]:bg-white data-[state=checked]:text-black"
+              className="bg-black border-black data-[state=checked]:bg-white data-[state=checked]:text-black cursor-pointer"
             />
             <Label
               htmlFor="location-history"
-              className="flex items-center justify-between flex-1"
+              className="flex items-center justify-between flex-1 cursor-pointer"
             >
               Show Location History
-              <LocateFixed className="h-4 w-4 h-[30px] w-[30px] text-red-500" />
+              <LocateFixed className="h-4 w-4 text-red-500" />
             </Label>
           </div>
         </CollapsibleContent>

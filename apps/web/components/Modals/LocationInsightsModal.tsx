@@ -1,5 +1,5 @@
 'use client';
-import { Globe, MapPin, TriangleAlert } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import { TransactionInsights, type Person } from '../../app/types/person';
 
 import {
@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from '@workspace/ui/components/dialog';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { Separator } from '@workspace/ui/components/separator';
 import { fetchPersonById, formatCurrency } from '@/utils/helpers';
 import { usePeople } from '@/contexts/PeopleContext';
 
@@ -44,75 +43,25 @@ export function LocationInsightsModal({
       <DialogContent className="max-w-4xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Visualise the data we have for {person ? person.name : 'this person'}.
+            <TriangleAlert className="h-5 w-5" />
+            Risk Indicators for {person ? person.name : 'this person'}.
           </DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh]">
           {person && (
             <div className="space-y-6">
-              <section>
-                <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Full Name
-                    </label>
-                    <p className="text-sm">{person.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Date of Birth
-                    </label>
-                    <p className="text-sm">{person.dob}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Account Number
-                    </label>
-                    <p className="text-sm font-mono">{person.accountNumber}</p>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Salary
-                    </label>
-                    <p className="text-sm">{formatCurrency(person.salary)}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Current Location
-                    </label>
-                    <p className="text-sm flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {person.location.city} since{' '}
-                      {person.locationInsights?.currentLocation?.since
-                        ? new Date(
-                            person.locationInsights.currentLocation.since,
-                          ).toLocaleDateString()
-                        : 'unknown'}
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              <Separator />
-
               {person.locationInsights?.currentLocation?.coords?.lat && (
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <TriangleAlert className="h-5 w-5" />
-                    Risk Indicators
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"></h3>
 
                   {/* Location Statistics */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">
+                      <label className="text-sm font-medium  text-amber-400">
                         Unusual Transactions
                       </label>
                       {unusualLocations.map((location: UnusualLocation) => (
-                        <div key={location.id} className="mb-2">
+                        <div key={location.location} className="mb-2">
                           <h4>{location.location}</h4>
                           <p className="text-sm">${location.amount}</p>
                           <p className="text-sm">
@@ -141,7 +90,7 @@ export function LocationInsightsModal({
                         days
                       </p>
                       <div className="mt-4">
-                        <label className="text-sm font-medium text-muted-foreground">
+                        <label className="text-md font-medium text-amber-400">
                           Frequent merchants
                         </label>
                         {frequentMerchants.map((merchant: FrequentMerchant) => (

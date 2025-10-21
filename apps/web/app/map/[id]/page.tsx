@@ -1,11 +1,10 @@
 'use client';
 import { MapPin } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { Map } from '../../../components/Map/Map';
-import { Person } from '../../types/person';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { getAddressFromPos } from '../../utils/helpers';
 import { usePeople } from '@/contexts/PeopleContext';
+import { type Person } from '@/app/types/person';
 
 const MapLoading = () => (
   <div className="flex h-full w-full flex-col items-center justify-center gap-4">
@@ -13,6 +12,7 @@ const MapLoading = () => (
     <p className="text-muted-foreground">Loading map...</p>
   </div>
 );
+
 export default function MapPage() {
   const { id: personId } = useParams() as { id: string };
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export default function MapPage() {
   const [error, setError] = useState<string | null>();
 
   const { getPersonById } = usePeople();
-  const person = getPersonById(personId);
+  const person: Person | undefined = getPersonById(personId);
 
   useEffect(() => {
     if (!person) return;
@@ -60,28 +60,37 @@ export default function MapPage() {
     })();
   }, [person]);
 
+  const LazyMap = lazy(() =>
+    import('../../../components/Map/Map').then((module) => ({ default: module.Map })),
+  );
+
   return (
     <div className="w-full h-[90vh] max-h-screen">
       <div className="mb-4 p-4">
         <h1 className="text-3xl font-bold mb-3">Location Map</h1>
-        <div className="grid grid-cols-2 gap-4">
+        <div className={`grid grid-cols-2 gap-4 border-b-1 pb-4`}>
           <div>
             {person && (
-              <p> Last known location of {person ? person.name : 'this person'}</p>
+              <p className="font-bold">
+                {' '}
+                Last known location of {person ? person.name : 'this person'}
+              </p>
             )}
             {address && <p>{address}</p>}
           </div>
           {locationCoords && (
-            <p>
-              Latitude: {locationCoords.latitude ?? 'N/A'}, Longitude:{' '}
-              {locationCoords.longitude ?? 'N/A'}
+            <p className="text-right">
+              <span>Lat: {locationCoords.latitude ?? 'N/A'}</span>
+              <span className="block">Lng: {locationCoords.longitude ?? 'N/A'}</span>
             </p>
           )}
         </div>
       </div>
 
       <div className="w-full">
-        {person && !loading && <Map locationData={person.locationInsights} />}{' '}
+        <Suspense fallback={<MapLoading />}>
+          {person?.locationInsights && <LazyMap locationData={person.locationInsights} />}
+        </Suspense>
       </div>
     </div>
   );

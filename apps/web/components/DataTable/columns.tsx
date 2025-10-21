@@ -77,7 +77,7 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
         checked={row.getIsSelected()}
         onCheckedChange={(checked: boolean) => row.toggleSelected(!!checked)}
         aria-label="Select row"
-        className="translate-y-[2px] m-2 border-2 border-lime-500"
+        className="translate-y-[2px] m-2 border-2 border-amber-400"
       />
     ),
     enableSorting: false,

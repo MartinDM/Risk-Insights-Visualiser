@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { LocationInsights } from '../../app/types/person';
@@ -38,7 +38,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
   const addResidenceMarkers = useCallback(() => {
-    if (!mapRef.current || !locationData?.residenceHistory) return;
+    if (!mapRef.current || !locationData?.residenceHistory) () => {};
 
     const markers: mapboxgl.Marker[] = [];
 
@@ -63,7 +63,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   }, [locationData?.residenceHistory, showResidenceHistory]);
 
   const addLocationMarkers = useCallback(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) () => {};
 
     const markers: mapboxgl.Marker[] = [];
 
@@ -119,7 +119,6 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       zoom,
     });
 
-    // Move listener
     const handleMove = () => {
       const c = mapRef.current!.getCenter();
       setCenter([c.lng, c.lat]);
@@ -127,7 +126,6 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     };
     mapRef.current.on('move', handleMove);
 
-    // Add persistent current location marker after map exists
     addCurrentLocationMarker();
 
     return () => {
@@ -138,14 +136,13 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   }, []);
 
   useEffect(() => {
-    const cleanup = addLocationMarkers();
-    return cleanup;
-  }, [addLocationMarkers]);
-
-  useEffect(() => {
-    const cleanup = addResidenceMarkers();
-    return cleanup;
-  }, [addResidenceMarkers]);
+    const cleanupLocation = addLocationMarkers();
+    const cleanupResidence = addResidenceMarkers();
+    return () => {
+      cleanupLocation();
+      cleanupResidence();
+    };
+  }, [addLocationMarkers, addResidenceMarkers]);
 
   const changeStyle = (newStyle: string) => {
     if (mapRef.current) {
@@ -177,16 +174,11 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       className={`relative w-full h-screen max-h-[70vh] ${styles.map} ${isDark ? styles.mapDark : ''}`}
     >
       <div ref={mapContainerRef} className="h-full" />
-      <div
-        className={`absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10`}
-      >
+      <div className="absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10">
         Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} | Zoom:{' '}
         {zoom.toFixed(2)}
       </div>
-
-      <div
-        className={`absolute bottom-0 left-0 right-0 w-full flex justify-between items-end p-4 z-10`}
-      >
+      <div className="absolute bottom-0 left-0 right-0 w-full flex justify-between items-end p-4 z-10">
         <Legend
           showResidenceHistory={showResidenceHistory}
           showLocationHistory={showLocationHistory}
@@ -197,15 +189,15 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
             setShowLocationHistory(!showLocationHistory)
           }
         />
-        <div className={`flex gap-2`}>
+        <div className="flex gap-2">
           <button
-            className={`bg-gray-800 py-2 px-4 text-white rounded hover:bg-gray-700 transition-colors`}
+            className="bg-gray-800 py-2 px-4 text-white rounded hover:bg-gray-700 transition-colors"
             onClick={handleReset}
           >
             Reset
           </button>
           <button
-            className={`bg-gray-800 py-2 px-4 text-white rounded hover:bg-gray-700 transition-colors`}
+            className="bg-gray-800 py-2 px-4 text-white rounded hover:bg-gray-700 transition-colors"
             onClick={toggleStyle}
           >
             {isDark ? <LightbulbOff /> : <Lightbulb />}

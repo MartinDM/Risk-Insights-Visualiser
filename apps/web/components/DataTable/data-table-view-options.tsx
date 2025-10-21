@@ -29,6 +29,7 @@ import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
 import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
+import { Separator } from '@workspace/ui/components/separator';
 
 export function DataTableViewOptions() {
   const { table, setValsHidden, valsHidden, selectionCount } = useTable();
@@ -48,7 +49,7 @@ export function DataTableViewOptions() {
     setValsHidden(!valsHidden);
   };
 
-  const handleLocationModal = () => {
+  const handleRiskModal = () => {
     setOpenLocationModal(true);
   };
 
@@ -115,7 +116,7 @@ export function DataTableViewOptions() {
           <DropdownMenuContent className="w-64" align="start">
             {selectionCount === 1 ? (
               <>
-                <DropdownMenuLabel className="flex items-center gap-2 bg-[var(--group-header)]">
+                <DropdownMenuLabel className="flex items-center gap-2 ">
                   <User className="h-4 w-4" />
                   Individual Insights
                 </DropdownMenuLabel>
@@ -123,14 +124,14 @@ export function DataTableViewOptions() {
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
-                      handleLocationModal();
+                      handleRiskModal();
                     }}
                   >
                     <MapPin className="mr-2 h-4 w-4" />
-                    Location History
+                    Risk Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Briefcase className="mr-2 h-4 w-4" />
+                    <Briefcase className="mr-2 h-4" />
                     <Link href={`map/${selectedIds[0]}`}>Map Visualiser</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

@@ -158,7 +158,6 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
 
               <Separator />
 
-              {/* Location Insights */}
               {person.locationInsights && (
                 <section>
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -275,7 +274,6 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
                     </div>
                   </div>
 
-                  {/* Top Spending Categories */}
                   <div className="mb-4">
                     <h4 className="text-sm font-medium mb-2">Top Spending Categories</h4>
                     <div className="space-y-2">
