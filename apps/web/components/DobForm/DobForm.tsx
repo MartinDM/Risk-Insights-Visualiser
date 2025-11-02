@@ -78,7 +78,11 @@ export const DobForm: React.FC = () => {
                     <Calendar
                       mode="range"
                       defaultMonth={defaultMonth}
-                      selected={field.value}
+                      selected={
+                        field.value?.from
+                          ? { from: field.value.from, to: field.value.to }
+                          : undefined
+                      }
                       onSelect={(range) => {
                         let finalRange = range;
                         // If from is selected and to is not, set to to today

@@ -54,7 +54,6 @@ export function Multimap({ locationData }: { locationData: PersonMapLocation[] }
       container,
       style: mapStyle,
       center,
-      prefetchZoomDelta: 0,
       zoom,
     });
 

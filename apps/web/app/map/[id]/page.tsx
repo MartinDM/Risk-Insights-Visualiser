@@ -60,7 +60,7 @@ export default function MapPage() {
         setAddress(addressParts.join(', ') || 'No address available');
         setLoading(false);
       } catch (e) {
-        setError('Failed to load person data', e as Error);
+        setError(`Failed to load person data: ${e as Error}`);
         setLoading(false);
       }
     })();
