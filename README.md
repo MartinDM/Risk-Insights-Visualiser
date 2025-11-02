@@ -9,6 +9,9 @@ A Next.js monorepo application for visualizing user data and risk metrics on int
 - **Reverse Geocoding** - Automatically fetch and display address information from coordinates
 - **Data Tables** - TanStack Table with sorting, filtering, and row selection
 - **Monorepo Architecture** - Shared UI components, TypeScript configs, and ESLint rules
+- **Single & Multi Map Views** - Switch between a single-person map and a multi-person map to compare locations
+- **Profile Modals** - Open an individual's profile with richer details directly from the map/table
+- **DOB Range Filter** - Filter table rows by date of birth using a calendar range picker
 
 ## Project Structure
 
@@ -39,6 +42,19 @@ A Next.js monorepo application for visualizing user data and risk metrics on int
 - **Residence History** - Black house icons mark historical residence locations
 - **Reverse Geocoding** - Fetches street addresses, postcodes, and countries from lat/lng coordinates
 - **Interactive Popups** - Click markers to see location details, dates, and residence types
+
+### 3. Map Views (Single & Multi)
+
+- **Single Map**: View one person's current location and residence/location history with toggleable residences.
+- **Multimap**: Plot multiple selected people at once for quick comparison of current locations.
+
+### 4. Profile Modals
+
+- From the table or map, open a modal with individual profile details for a focused view without navigation.
+
+### 5. Date-of-Birth Filtering
+
+- Use the calendar range picker to filter customers by DOB.
 
 ## Getting Started
 
