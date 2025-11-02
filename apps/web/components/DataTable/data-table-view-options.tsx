@@ -25,7 +25,6 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Person } from '../../app/types/person';
-import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
 import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
@@ -36,7 +35,6 @@ export function DataTableViewOptions() {
   const router = useRouter();
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
-  const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
 
   const rowSelection = table.getState().rowSelection;
 
@@ -47,10 +45,6 @@ export function DataTableViewOptions() {
 
   const handleValuesToggle = () => {
     setValsHidden(!valsHidden);
-  };
-
-  const handleRiskModal = () => {
-    setOpenLocationModal(true);
   };
 
   const handlePersonProfile = () => {
@@ -120,12 +114,7 @@ export function DataTableViewOptions() {
                   <strong>Individual Insights</strong>
                 </DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleRiskModal();
-                    }}
-                  >
+                  <DropdownMenuItem>
                     <Link className="flex cursor-default" href={`risk/${selectedIds[0]}`}>
                       <Briefcase className="mr-2 h-4 text-cyan-600" />
                       Risk Profile
@@ -181,12 +170,6 @@ export function DataTableViewOptions() {
       <ProfileModal
         isOpen={openPersonModal}
         onOpenChange={setOpenPersonModal}
-        personId={selectedIds[0] || ''}
-      />
-
-      <LocationInsightsModal
-        isOpen={openLocationModal}
-        onOpenChange={setOpenLocationModal}
         personId={selectedIds[0] || ''}
       />
     </div>
