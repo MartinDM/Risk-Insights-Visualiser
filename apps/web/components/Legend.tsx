@@ -40,7 +40,7 @@ export function Legend({
               htmlFor="residence-history"
               className="flex items-center justify-between flex-1"
             >
-              Show Residences
+              Known residences
               <Home className="h-4 w-4 text-green-600" />
             </Label>
           </div>
@@ -55,7 +55,7 @@ export function Legend({
               htmlFor="location-history"
               className="flex items-center justify-between flex-1 cursor-pointer"
             >
-              Show Location History
+              Known location history
               <LocateFixed className="h-4 w-4 text-red-500" />
             </Label>
           </div>

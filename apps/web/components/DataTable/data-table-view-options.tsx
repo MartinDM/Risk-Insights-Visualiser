@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
@@ -18,7 +19,6 @@ import {
   Globe,
   MapPin,
   Settings2,
-  TrendingUp,
   User,
   Users,
 } from 'lucide-react';
@@ -29,21 +29,21 @@ import { LocationInsightsModal } from '../Modals';
 import { ProfileModal } from '../Modals/ProfileModal';
 import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
-import { Separator } from '@workspace/ui/components/separator';
 
 export function DataTableViewOptions() {
   const { table, setValsHidden, valsHidden, selectionCount } = useTable();
-  const { refresh } = usePeople();
-
+  const { refresh, selectedIds, setSelectedIds } = usePeople();
+  const router = useRouter();
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
   const [openLocationModal, setOpenLocationModal] = useState<boolean>(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const rowSelection = table.getState().rowSelection;
 
   useEffect(() => {
     const rows = table.getSelectedRowModel().rows;
     setSelectedIds(rows.map((row) => (row.original as Person).id));
-  }, [table.getState().rowSelection]);
+  }, [rowSelection, setSelectedIds, table]);
 
   const handleValuesToggle = () => {
     setValsHidden(!valsHidden);
@@ -58,8 +58,7 @@ export function DataTableViewOptions() {
   };
 
   const handleGroupInsights = () => {
-    // Placeholder for group insights functionality
-    console.log('Group insights functionality not yet implemented');
+    router.push('/map');
   };
 
   return (
@@ -118,7 +117,7 @@ export function DataTableViewOptions() {
               <>
                 <DropdownMenuLabel className="flex items-center gap-2 ">
                   <User className="h-4 w-4" />
-                  Individual Insights
+                  <strong>Individual Insights</strong>
                 </DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem
@@ -127,12 +126,16 @@ export function DataTableViewOptions() {
                       handleRiskModal();
                     }}
                   >
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Risk Profile
+                    <Link className="flex cursor-default" href={`risk/${selectedIds[0]}`}>
+                      <Briefcase className="mr-2 h-4 text-cyan-600" />
+                      Risk Profile
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Briefcase className="mr-2 h-4" />
-                    <Link href={`map/${selectedIds[0]}`}>Map Visualiser</Link>
+                    <Link className="flex cursor-default" href={`map/${selectedIds[0]}`}>
+                      <MapPin className="mr-2 h-4 w-4 text-cyan-600" />
+                      Map Visualiser
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -142,7 +145,7 @@ export function DataTableViewOptions() {
                     handlePersonProfile();
                   }}
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye className="mr-2 h-4 w-4 text-cyan-600" />
                   View Full Profile
                 </DropdownMenuItem>
               </>
@@ -150,28 +153,16 @@ export function DataTableViewOptions() {
               // Multiple people selected - show group insights
               <>
                 <DropdownMenuLabel className="flex items-center gap-2">
-                  <Users className="h-4 w-4 bg-[var(--group-header)]" />
-                  Group Insights ({selectionCount} people)
+                  <Users className="h-4 w-4" />
+                  Group Insights
                 </DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem onClick={handleGroupInsights}>
                     <Globe className="mr-2 h-4 w-4" />
                     Geographic Distribution
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleGroupInsights}>
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Demographic Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleGroupInsights}>
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Comparative Metrics
-                  </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleGroupInsights}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Group Report
-                </DropdownMenuItem>
               </>
             )}
           </DropdownMenuContent>

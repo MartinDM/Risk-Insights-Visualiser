@@ -184,3 +184,5 @@ export type Person = {
   // Credit card transaction data for financial and location insights
   transactionInsights?: TransactionInsights;
 };
+
+export type PersonMapLocation = Omit<Person, 'transactionInsights'>;

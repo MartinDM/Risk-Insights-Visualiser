@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@workspace/ui/components/dialog';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { fetchPersonById, formatCurrency } from '@/utils/helpers';
+import { fetchPersonById } from '@/utils/helpers';
 import { usePeople } from '@/contexts/PeopleContext';
 
 interface LocationInsightsModalProps {

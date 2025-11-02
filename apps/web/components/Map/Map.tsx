@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import type { LocationInsights } from '../../app/types/person';
-import { Legend } from './components/Legend';
+import type { LocationInsights } from '@/app/types/person';
+import { Legend } from '../Legend';
+
 import {
   createCurrentLocationPopupHTML,
   createLocationPopupHTML,
@@ -13,79 +14,33 @@ import {
   generateResidenceMarker,
 } from './helpers';
 
-import styles from './map.module.scss';
-
 import { Lightbulb, LightbulbOff } from 'lucide-react';
+import { LocationHistory } from '../../app/types/person';
 
 export function Map({ locationData }: { locationData: LocationInsights }) {
-  const { lat, lng } = locationData?.currentLocation?.coords || { lat: 0, lng: 0 };
-
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const locationDataRef = useRef(locationData);
 
-  const [zoom, setZoom] = useState(11);
-  const [center, setCenter] = useState<[number, number]>([lng, lat]);
+  const initialZoomRef = useRef<number>(8);
+  const initialCenterRef = useRef<mapboxgl.LngLat>(
+    new mapboxgl.LngLat(
+      locationData.currentLocation.coords.lng,
+      locationData.currentLocation.coords.lat,
+    ),
+  );
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isDark, setIsDark] = useState(false);
 
   const [showResidenceHistory, setShowResidenceHistory] = useState(true);
   const [showLocationHistory, setShowLocationHistory] = useState(true);
 
-  if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
-    console.error('Missing Mapbox token');
-    return;
-  }
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-  const addResidenceMarkers = useCallback(() => {
-    if (!mapRef.current || !locationData?.residenceHistory) () => {};
-
-    const markers: mapboxgl.Marker[] = [];
-
-    if (showResidenceHistory) {
-      locationData.residenceHistory.forEach((residence) => {
-        const { lng, lat } = residence.location.coords;
-        const markerEl = generateResidenceMarker(!residence.endDate);
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-          createResidencePopupHTML(residence),
-        );
-        const marker = new mapboxgl.Marker(markerEl)
-          .setLngLat([lng, lat])
-          .setPopup(popup)
-          .addTo(mapRef.current!);
-        markers.push(marker);
-      });
-    }
-
-    return () => {
-      markers.forEach((marker) => marker.remove());
-    };
-  }, [locationData?.residenceHistory, showResidenceHistory]);
-
-  const addLocationMarkers = useCallback(() => {
-    if (!mapRef.current) () => {};
-
-    const markers: mapboxgl.Marker[] = [];
-
-    if (showLocationHistory) {
-      locationData.locationHistory.forEach((location) => {
-        const { lng, lat } = location.location.coords;
-        const markerEl = generateLocationMarker();
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-          createLocationPopupHTML(location),
-        );
-        const marker = new mapboxgl.Marker(markerEl)
-          .setLngLat([lng, lat])
-          .setPopup(popup)
-          .addTo(mapRef.current!);
-        markers.push(marker);
-      });
-    }
-
-    return () => {
-      markers.forEach((marker) => marker.remove());
-    };
-  }, [locationData?.locationHistory, showLocationHistory]);
+  // Keep locationDataRef in sync without triggering effects
+  useEffect(() => {
+    locationDataRef.current = locationData;
+  }, [locationData]);
 
   const addCurrentLocationMarker = () => {
     if (!mapRef.current || !locationData?.currentLocation) return;
@@ -101,13 +56,20 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
         new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat])
           .setPopup(popup)
-          .addTo(mapRef.current!);
+          .addTo(mapRef.current);
       }
-      return () => {
-        mapRef.current?.remove();
-      };
     }
   };
+
+  // Track camera without causing rerenders during drag
+  const centerRef = useRef(initialCenterRef.current);
+  const zoomRef = useRef(initialZoomRef.current);
+  const handleMove = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    centerRef.current = map.getCenter();
+    zoomRef.current = map.getZoom() ?? 8;
+  }, []);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -115,34 +77,67 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: mapStyle,
-      center,
-      zoom,
+      center: initialCenterRef.current,
+      zoom: initialZoomRef.current,
     });
 
-    const handleMove = () => {
-      const c = mapRef.current!.getCenter();
-      setCenter([c.lng, c.lat]);
-      setZoom(mapRef.current!.getZoom());
-    };
-    mapRef.current.on('move', handleMove);
-
     addCurrentLocationMarker();
+    mapRef.current.on('move', handleMove);
 
     return () => {
       mapRef.current?.off('move', handleMove);
       mapRef.current?.remove();
       mapRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const cleanupLocation = addLocationMarkers();
-    const cleanupResidence = addResidenceMarkers();
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Use ref to get current locationData without it being a dependency
+    const currentData = locationDataRef.current;
+
+    // Add location markers
+    const locationMarkers: mapboxgl.Marker[] = [];
+    if (showLocationHistory && currentData.locationHistory) {
+      currentData.locationHistory.forEach((entry: LocationHistory) => {
+        const { lng, lat } = entry.location.coords;
+        const markerEl = generateLocationMarker();
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+          createLocationPopupHTML(entry),
+        );
+        const marker = new mapboxgl.Marker(markerEl)
+          .setLngLat([lng, lat])
+          .setPopup(popup)
+          .addTo(map);
+        locationMarkers.push(marker);
+      });
+    }
+
+    // Add residence markers
+    const residenceMarkers: mapboxgl.Marker[] = [];
+    if (showResidenceHistory && currentData.residenceHistory) {
+      currentData.residenceHistory.forEach((residence) => {
+        const { lng, lat } = residence.location.coords;
+        const markerEl = generateResidenceMarker(!residence.endDate);
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+          createResidencePopupHTML(residence),
+        );
+        const marker = new mapboxgl.Marker(markerEl)
+          .setLngLat([lng, lat])
+          .setPopup(popup)
+          .addTo(map);
+        residenceMarkers.push(marker);
+      });
+    }
+
     return () => {
-      cleanupLocation();
-      cleanupResidence();
+      locationMarkers.forEach((marker) => marker.remove());
+      residenceMarkers.forEach((marker) => marker.remove());
     };
-  }, [addLocationMarkers, addResidenceMarkers]);
+  }, [showLocationHistory, showResidenceHistory]);
 
   const changeStyle = (newStyle: string) => {
     if (mapRef.current) {
@@ -163,20 +158,19 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   const handleReset = () => {
     if (mapRef.current) {
       mapRef.current.flyTo({
-        center: [lng, lat],
-        zoom,
+        center: { ...locationData.currentLocation.coords },
+        zoom: 8,
       });
     }
   };
 
   return (
-    <div
-      className={`relative w-full h-screen max-h-[70vh] ${styles.map} ${isDark ? styles.mapDark : ''}`}
-    >
+    <div className={`relative w-full h-screen max-h-[70vh] map`}>
       <div ref={mapContainerRef} className="h-full" />
-      <div className="absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10">
-        Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} | Zoom:{' '}
-        {zoom.toFixed(2)}
+      <div className="pointer-events-none absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10">
+        Longitude: {centerRef.current.lng?.toFixed(4) ?? '...'} | Latitude:{' '}
+        {centerRef.current.lat?.toFixed(4) ?? '...'} | Zoom:{' '}
+        {zoomRef.current?.toFixed(2) ?? '...'}
       </div>
       <div className="absolute bottom-0 left-0 right-0 w-full flex justify-between items-end p-4 z-10">
         <Legend

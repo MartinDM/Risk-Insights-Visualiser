@@ -68,7 +68,7 @@ export function ProfileModal({ isOpen, onOpenChange, personId }: ProfileModaProp
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh]">
-        <DialogHeader>
+        <DialogHeader className="border-l-blue-400 border-l-2 pl-4 py-2">
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
             {loading

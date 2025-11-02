@@ -261,7 +261,7 @@ export const getGeoData = async ({
 export const getAddressDetails = (): { address: string; coords: [number, number] } => {
   const address = fakerEN_GB.location.streetAddress(true);
   // Generate coordinates that correspond to realistic UK locations
-  const coords = faker.location.nearbyGPSCoordinate({
+  const coords = fakerEN_GB.location.nearbyGPSCoordinate({
     origin: [51.5074, -0.1278], // London
     radius: 200,
     isMetric: true,

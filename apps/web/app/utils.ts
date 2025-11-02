@@ -1,6 +1,7 @@
 import { FilterFn } from '@tanstack/react-table';
 import { z } from 'zod';
 import { Person } from './types/person';
+
 export const FormSchema = z.object({
   dob: z
     .object({
@@ -19,6 +20,11 @@ export const FormSchema = z.object({
       },
     ),
 });
+
+export type DateRange = {
+  from?: Date;
+  to?: Date;
+};
 
 export const dateRangeFilter: FilterFn<Person> = (row, columnId, filterValue) => {
   const value = row.getValue<Date | string>(columnId);

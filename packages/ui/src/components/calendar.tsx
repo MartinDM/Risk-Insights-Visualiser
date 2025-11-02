@@ -31,6 +31,8 @@ function Calendar({
         className,
       )}
       captionLayout={captionLayout}
+      fromYear={1980}
+      toYear={new Date().getFullYear()}
       formatters={{
         formatMonthDropdown: (date) => date.toLocaleString('default', { month: 'short' }),
         ...formatters,

@@ -1,10 +1,11 @@
 'use client';
-import { MapPin } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { MapPin, ExternalLink } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { getAddressFromPos } from '../../utils/helpers';
 import { usePeople } from '@/contexts/PeopleContext';
 import { type Person } from '@/app/types/person';
+import { ProfileModal } from '@/components/Modals/ProfileModal';
 
 const MapLoading = () => (
   <div className="flex h-full w-full flex-col items-center justify-center gap-4">
@@ -13,23 +14,28 @@ const MapLoading = () => (
   </div>
 );
 
+// IMPORTANT: define LazyMap at module scope so its identity is stable across renders
+const LazyMap = lazy(() =>
+  import('../../../components/Map/Map').then((module) => ({ default: module.Map })),
+);
+
 export default function MapPage() {
   const { id: personId } = useParams() as { id: string };
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [address, setAddress] = useState<string>('');
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const [locationCoords, setLocationCoords] = useState<{
     latitude?: number;
     longitude?: number;
   }>();
 
-  const [error, setError] = useState<string | null>();
-
+  const [_error, setError] = useState<string | null>();
   const { getPersonById } = usePeople();
+  const router = useRouter();
   const person: Person | undefined = getPersonById(personId);
 
   useEffect(() => {
     if (!person) return;
-
     (async () => {
       setLoading(true);
       setError(null);
@@ -51,30 +57,43 @@ export default function MapPage() {
         const country = feature?.properties.context.country?.name;
         const addressParts = [street, postcode, country].filter(Boolean);
         setLocationCoords(feature?.properties.coordinates);
-        setAddress(addressParts.join(', ') || 'Address not found');
+        setAddress(addressParts.join(', ') || 'No address available');
         setLoading(false);
       } catch (e) {
-        setError('Failed to load person data');
+        setError('Failed to load person data', e as Error);
         setLoading(false);
       }
     })();
   }, [person]);
 
-  const LazyMap = lazy(() =>
-    import('../../../components/Map/Map').then((module) => ({ default: module.Map })),
-  );
-
   return (
     <div className="w-full h-[90vh] max-h-screen">
       <div className="mb-4 p-4">
-        <h1 className="text-3xl font-bold mb-3">Location Map</h1>
+        <button
+          onClick={() => router.back()}
+          className="text-zinc-300 cursor-pointer hover:text-zinc-500 mb-2"
+        >
+          ← Back to table
+        </button>
+        <h1 className="text-3xl font-bold mb-3 border-l-amber-400 border-l-2 pl-4">
+          {person?.name}
+        </h1>
         <div className={`grid grid-cols-2 gap-4 border-b-1 pb-4`}>
           <div>
             {person && (
-              <p className="font-bold">
-                {' '}
-                Last known location of {person ? person.name : 'this person'}
-              </p>
+              <span className="flex">
+                <button
+                  className="flex underline cursor-pointer hover:text-zinc-500 font-bold mb-2"
+                  onClick={() => {
+                    setOpenModal(!openModal);
+                  }}
+                >
+                  View profile
+                  <span className="px-2">
+                    <ExternalLink />
+                  </span>
+                </button>
+              </span>
             )}
             {address && <p>{address}</p>}
           </div>
@@ -92,6 +111,7 @@ export default function MapPage() {
           {person?.locationInsights && <LazyMap locationData={person.locationInsights} />}
         </Suspense>
       </div>
+      <ProfileModal isOpen={openModal} onOpenChange={setOpenModal} personId={personId} />
     </div>
   );
 }

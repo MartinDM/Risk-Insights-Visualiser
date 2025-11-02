@@ -1,10 +1,8 @@
 'use client';
-
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
-
 import { TableProvider } from '../contexts/TableContext';
-import { PeopleProvider } from "@/contexts/PeopleContext";
+import { PeopleProvider } from '@/contexts/PeopleContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

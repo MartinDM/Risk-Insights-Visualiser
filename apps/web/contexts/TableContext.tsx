@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Person } from '@/app/types/person';
-import { DateRange } from '@/components/DobForm/DobForm';
+import { DateRange } from '@/app/utils';
 import {
   getFacetedRowModel,
   getFacetedUniqueValues,

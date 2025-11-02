@@ -22,7 +22,7 @@ export function DataTable() {
 
   return (
     <div className="w-full">
-      {/* <DobForm /> */}
+      <DobForm />
       {hasData ? (
         <>
           <p className="text-right text-xs font-bold">

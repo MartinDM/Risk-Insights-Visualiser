@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import {
   Form,
   FormControl,
@@ -17,26 +17,22 @@ import { cn } from '@workspace/ui/lib/utils';
 import { FormSchema } from '../../app/utils';
 import { useTable } from '@/contexts/TableContext';
 import { zodResolver } from '@hookform/resolvers/zod';
-
+import { z } from 'zod';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@workspace/ui/components/popover';
 
-export type DateRange = { from?: Date | undefined; to?: Date | undefined };
-
-type DobFormValues = {
-  dob: DateRange;
-};
+type DobFormValues = z.infer<typeof FormSchema>;
 
 export const DobForm: React.FC = () => {
-
   const { setDateRange } = useTable();
+  const [defaultMonth, setDefaultMonth] = React.useState<Date>(new Date(1980, 0));
 
   const form = useForm<DobFormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { dob: { from: undefined, to: undefined } }, // Ensure dob matches DateRange type
+    defaultValues: { dob: { from: undefined, to: undefined } },
   });
 
   const handleReset = () => {
@@ -61,8 +57,8 @@ export const DobForm: React.FC = () => {
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'w-[240px] pl-3  mx-auto font-normal',
-                          !field.value && 'text-muted-foreground',
+                          'p-2 mx-auto font-normal',
+                          !field.value?.from && 'text-muted-foreground',
                         )}
                       >
                         {field.value && field.value.from ? (
@@ -81,10 +77,22 @@ export const DobForm: React.FC = () => {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="range"
+                      defaultMonth={defaultMonth}
                       selected={field.value}
                       onSelect={(range) => {
-                        field.onChange(range);
-                        setDateRange(range || { from: undefined, to: undefined });
+                        let finalRange = range;
+                        // If from is selected and to is not, set to to today
+                        if (range?.from && !range?.to) {
+                          finalRange = { from: range.from, to: new Date() };
+                        }
+                        // Update defaultMonth to the latest selected date (from or to)
+                        if (finalRange?.to) {
+                          setDefaultMonth(finalRange.to);
+                        } else if (finalRange?.from) {
+                          setDefaultMonth(finalRange.from);
+                        }
+                        field.onChange(finalRange);
+                        setDateRange(finalRange || { from: undefined, to: undefined });
                       }}
                       disabled={(date) =>
                         date > new Date() || date < new Date('1900-01-01')
