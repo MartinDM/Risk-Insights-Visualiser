@@ -1,6 +1,10 @@
-# Data App - User Risk Visualization
+# Data App - User Risk Visualization 🌍
 
 A Next.js monorepo application for visualizing user data and risk metrics on interactive maps.
+
+<a href="https://datainsightsvisualiser.vercel.app/">
+<img width="1113" height="516" alt="image" src="https://github.com/user-attachments/assets/14bc9fd9-d1db-4c54-ae9f-aa8a93a7eac6" />
+</a>
 
 ## Key Features
 
