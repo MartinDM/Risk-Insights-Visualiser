@@ -37,6 +37,17 @@ export default function RootLayout({
                 </div>
               </div>
               <div>{children}</div>
+              <div className="p-5 text-center text-sm text-zinc-500 mt-10 border-t border-zinc-800 w-full">
+                Made by Martin {' ☕ '}
+                <a
+                  href="https://github.com/MartinDM/Risk-Insights-Visualiser"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-zinc-400"
+                >
+                  View on GitHub
+                </a>
+              </div>
             </div>
           </div>
         </Providers>
