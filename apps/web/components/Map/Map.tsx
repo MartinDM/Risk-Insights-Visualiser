@@ -16,14 +16,16 @@ import {
 
 import { Lightbulb, LightbulbOff } from 'lucide-react';
 import { LocationHistory } from '../../app/types/person';
+import { MapOverlay } from '../MapOverlay/MapOverlay';
 
 export function Map({ locationData }: { locationData: LocationInsights }) {
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const locationDataRef = useRef(locationData);
-
-  const initialZoomRef = useRef<number>(8);
-  const initialCenterRef = useRef<mapboxgl.LngLat>(
+  const [zoom, setZoom] = useState<number>(8);
+  const [center, setCenter] = useState<mapboxgl.LngLat>(
     new mapboxgl.LngLat(
       locationData.currentLocation.coords.lng,
       locationData.currentLocation.coords.lat,
@@ -31,11 +33,8 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   );
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isDark, setIsDark] = useState(false);
-
   const [showResidenceHistory, setShowResidenceHistory] = useState(true);
   const [showLocationHistory, setShowLocationHistory] = useState(true);
-
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   // Keep locationDataRef in sync without triggering effects
   useEffect(() => {
@@ -61,32 +60,32 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     }
   };
 
-  // Track camera without causing rerenders during drag
-  const centerRef = useRef(initialCenterRef.current);
-  const zoomRef = useRef(initialZoomRef.current);
   const handleMove = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
-    centerRef.current = map.getCenter();
-    zoomRef.current = map.getZoom() ?? 8;
+    const c = map.getCenter();
+    setCenter(c);
+    setZoom(map.getZoom() ?? 8);
   }, []);
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    if (!container) return;
 
     mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
+      container,
       style: mapStyle,
-      center: initialCenterRef.current,
-      zoom: initialZoomRef.current,
+      center,
+      zoom,
     });
 
+    const map = mapRef.current;
     addCurrentLocationMarker();
-    mapRef.current.on('move', handleMove);
+    map.on('move', handleMove);
 
     return () => {
-      mapRef.current?.off('move', handleMove);
-      mapRef.current?.remove();
+      map.off('move', handleMove);
+      map.remove();
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +95,6 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
     const map = mapRef.current;
     if (!map) return;
 
-    // Use ref to get current locationData without it being a dependency
     const currentData = locationDataRef.current;
 
     // Add location markers
@@ -116,7 +114,6 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
       });
     }
 
-    // Add residence markers
     const residenceMarkers: mapboxgl.Marker[] = [];
     if (showResidenceHistory && currentData.residenceHistory) {
       currentData.residenceHistory.forEach((residence) => {
@@ -156,22 +153,18 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   };
 
   const handleReset = () => {
-    if (mapRef.current) {
-      mapRef.current.flyTo({
-        center: { ...locationData.currentLocation.coords },
-        zoom: 8,
-      });
-    }
+    const map = mapRef.current;
+    if (!map) return;
+    mapRef.current.flyTo({
+      center: { ...locationData.currentLocation.coords },
+      zoom: 8,
+    });
   };
 
   return (
     <div className={`relative w-full h-screen max-h-[70vh] map`}>
       <div ref={mapContainerRef} className="h-full" />
-      <div className="pointer-events-none absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10">
-        Longitude: {centerRef.current.lng?.toFixed(4) ?? '...'} | Latitude:{' '}
-        {centerRef.current.lat?.toFixed(4) ?? '...'} | Zoom:{' '}
-        {zoomRef.current?.toFixed(2) ?? '...'}
-      </div>
+      <MapOverlay center={center} zoom={zoom} />
       <div className="absolute bottom-0 left-0 right-0 w-full flex justify-between items-end p-4 z-10">
         <Legend
           showResidenceHistory={showResidenceHistory}

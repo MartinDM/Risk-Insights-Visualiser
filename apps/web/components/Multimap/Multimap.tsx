@@ -9,8 +9,11 @@ import {
 } from '../Map/helpers';
 
 import { Lightbulb, LightbulbOff } from 'lucide-react';
+import { MapOverlay } from '../MapOverlay/MapOverlay';
 
 export function Multimap({ locationData }: { locationData: PersonMapLocation[] }) {
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -20,8 +23,6 @@ export function Multimap({ locationData }: { locationData: PersonMapLocation[] }
   );
   const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
   const [isDark, setIsDark] = useState(false);
-
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   const addCurrentLocationMarkers = () => {
     const map = mapRef.current;
@@ -96,10 +97,7 @@ export function Multimap({ locationData }: { locationData: PersonMapLocation[] }
   return (
     <div className={`relative w-full h-screen max-h-[70vh] map`}>
       <div ref={mapContainerRef} className="h-full" />
-      <div className="absolute top-0 left-0 m-3 px-3 py-1.5 bg-slate-700/90 text-white font-mono rounded z-10">
-        Longitude: {center?.lng?.toFixed(4) ?? '...'} | Latitude:{' '}
-        {center.lat?.toFixed(4) ?? '...'} | Zoom: {zoom?.toFixed(2) ?? '...'}
-      </div>
+      <MapOverlay center={center} zoom={zoom} />
       <div className="absolute bottom-0 left-0 right-0 w-full flex justify-between items-end p-4 z-10">
         <div className="flex gap-2">
           <button
