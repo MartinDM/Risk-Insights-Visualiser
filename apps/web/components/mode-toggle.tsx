@@ -17,7 +17,7 @@ export function ModeToggle() {
     <Button
       variant="secondary"
       size="icon"
-      className="group/toggle size-8"
+      className="group/toggle size-8 ml-auto"
       onClick={toggleTheme}
     >
       <SunIcon className="hidden [html.dark_&]:block" />
