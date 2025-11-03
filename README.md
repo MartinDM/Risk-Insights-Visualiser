@@ -1,4 +1,4 @@
-# Data App - User Risk Visualization 🌍
+# User Risk Visualisation 🌍
 
 A Next.js monorepo application for visualizing user data and risk metrics on interactive maps.
 
