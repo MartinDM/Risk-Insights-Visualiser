@@ -155,7 +155,7 @@ export function Map({ locationData }: { locationData: LocationInsights }) {
   const handleReset = () => {
     const map = mapRef.current;
     if (!map) return;
-    mapRef.current.flyTo({
+    map.flyTo({
       center: { ...locationData.currentLocation.coords },
       zoom: 8,
     });
