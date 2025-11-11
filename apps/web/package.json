@@ -54,7 +54,6 @@
     "@vitest/ui": "^3.2.4",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
-    "addon-docs": "link: @storybook/addon-docs",
     "eslint": "^9.32.0",
     "eslint-config-next": "^15.5.4",
     "eslint-config-prettier": "^9.1.2",
