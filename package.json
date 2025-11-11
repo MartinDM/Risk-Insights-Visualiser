@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "pnpm --filter web run dev",
     "lint": "turbo lint",
     "check-types": "turbo run check-types",
     "vet": "turbo run lint check-types",
