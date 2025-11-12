@@ -1,4 +1,9 @@
 'use client';
+import * as React from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { FaRegCalendarAlt } from 'react-icons/fa';
+import { format } from 'date-fns';
 import {
   Form,
   FormControl,
@@ -7,17 +12,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@workspace/ui/components/form';
-import { format } from 'date-fns';
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { FaRegCalendarAlt } from 'react-icons/fa';
-import { Button } from '@workspace/ui/components/button';
 import { Calendar } from '@workspace/ui/components/calendar';
+import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
-import { FormSchema } from '../../app/utils';
+import { FormSchema } from '../../app/data/schema';
 import { useTable } from '@/contexts/TableContext';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Popover,
   PopoverContent,

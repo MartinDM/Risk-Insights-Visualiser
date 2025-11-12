@@ -24,7 +24,7 @@ const meta = {
     variant: 'default',
     size: 'default',
     onClick: fn(),
-  },
+  }, 
 } satisfies Meta<typeof Button>;
 
 export default meta;

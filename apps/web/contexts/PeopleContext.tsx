@@ -5,63 +5,56 @@ import {
   createContext,
   ReactNode,
   useContext,
-  useEffect,
+  useMemo,
   useState,
   useCallback,
 } from 'react';
-import { createPeople } from '../../web/app/utils/helpers';
+import { usePeopleQuery } from '../hooks/usePeopleQuery';
+import { useQueryClient } from '@tanstack/react-query';
 
 type PeopleContextType = {
   people: Person[];
-  refresh: () => void;
-  loaded: boolean;
+  isLoading: boolean;
+  error: unknown;
   selectedIds: string[];
   setSelectedIds: (ids: string[]) => void;
-  getPersonById: (id: string) => Person | undefined;
   selectedPeople: Person[];
+  getPersonById: (id: string) => Person | undefined;
+  refresh: () => void;
 };
 
 const PeopleContext = createContext<PeopleContextType | undefined>(undefined);
 
 export function PeopleProvider({ children }: { children: ReactNode }) {
-  const [people, setPeople] = useState<Person[]>([]);
-  const [loaded, setLoaded] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [selectedPeople, setSelectedPeople] = useState<Person[]>([]);
+  const { data, isLoading, error } = usePeopleQuery();
+  const people = useMemo(() => data ?? [], [data]);
 
-  const getSelectedPeople = useCallback(
+  const selectedPeople = useMemo(
     () => people.filter((p) => selectedIds.includes(p.id)),
     [people, selectedIds],
   );
 
-  useEffect(() => {
-    const people = createPeople(20);
-    setPeople(people);
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    setSelectedPeople(getSelectedPeople());
-  }, [selectedIds, getSelectedPeople]);
+  const queryClient = useQueryClient();
 
   const refresh = () => {
-    setLoaded(false);
-    setPeople(createPeople(20));
+    queryClient.invalidateQueries({ queryKey: ['people'] });
   };
 
-  const getPersonById = (id: string): Person | undefined => {
-    return people.find((p) => p.id === id);
-  };
+  const getPersonById = useCallback(
+    (id: string) => people.find((p) => p.id === id),
+    [people],
+  );
 
-  // Context value is stable enough without useMemo since the functions are defined in the component
-  const value = {
+  const value: PeopleContextType = {
     people,
+    isLoading,
+    error,
     selectedIds,
     setSelectedIds,
+    selectedPeople,
     getPersonById,
     refresh,
-    loaded,
-    selectedPeople,
   };
 
   return <PeopleContext.Provider value={value}>{children}</PeopleContext.Provider>;

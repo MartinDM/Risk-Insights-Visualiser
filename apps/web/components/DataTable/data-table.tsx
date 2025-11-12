@@ -16,7 +16,7 @@ import { usePeople } from '@/contexts/PeopleContext';
 
 export function DataTable() {
   const { table, selectionCount } = useTable();
-  const { loaded } = usePeople();
+  const { isLoading } = usePeople();
   const hasData = table.getFilteredRowModel().rows.length > 0;
   const rowCount = table.getRowModel().rows.length;
 
@@ -73,7 +73,7 @@ export function DataTable() {
                   colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  {!loaded ? 'Loading...' : 'No results.'}
+                  {isLoading ? 'Loading...' : 'No results.'}
                 </TableCell>
               </TableRow>
             )}

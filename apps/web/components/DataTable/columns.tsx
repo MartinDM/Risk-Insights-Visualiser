@@ -1,14 +1,15 @@
 'use client';
 import { Person } from '@/app/types/person';
-import { dateRangeFilter } from '@/app/utils';
+import { dateRangeFilter } from '@/app/utils/helpers';
 import { Column, ColumnDef, Row, Table } from '@tanstack/react-table';
+import { Info } from 'lucide-react';
+
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
-import { Info } from 'lucide-react';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 

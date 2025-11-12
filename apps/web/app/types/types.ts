@@ -4,3 +4,8 @@ export enum ActionType {
   Work = 'work',
   ViewFullProfile = 'view-full-profile',
 }
+
+export type DateRange = {
+  from?: Date;
+  to?: Date;
+};
