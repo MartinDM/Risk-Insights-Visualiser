@@ -391,6 +391,7 @@ export async function createPeople(count: number): Promise<Person[]> {
       id: `U${(1000 + index).toString().padStart(4, '0')}`,
       name: faker.person.fullName(),
       risk: faker.number.int({ min: 0, max: 100 }),
+      tagged: null,
       accountNumber: faker.finance.accountNumber(),
       salary: faker.number.int({ min: 30000, max: 120000 }),
       bio: faker.person.bio(),

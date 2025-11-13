@@ -18,15 +18,20 @@ export const personSchema = z.object({
   }),
 });
 
-export const labels = [
+export const tags = [
   {
-    value: 'high',
-    label: 'High',
+    value: 'transit',
+    label: 'In transit',
     icon: CircleOff,
   },
   {
-    value: 'low',
-    label: 'Low',
+    value: 'offGrid',
+    label: 'Off grid',
+    icon: CircleOff,
+  },
+  {
+    value: 'review',
+    label: 'For review',
     icon: Timer,
   },
 ];

@@ -168,6 +168,7 @@ export type Person = {
   id: string;
   name: string;
   risk: number;
+  tag?: string;
   accountNumber: string;
   salary: number;
   bio: string;

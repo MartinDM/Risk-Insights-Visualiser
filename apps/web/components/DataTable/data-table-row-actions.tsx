@@ -18,12 +18,14 @@ import {
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-import { risk } from '../../data';
+import { tags } from '../../data';
 import { personSchema } from '../../data';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
+
+const applyTag = (value, personId) => {};
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const person = personSchema.parse(row.original);
@@ -37,21 +39,22 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
+        {/* <DropdownMenuItem>Edit</DropdownMenuItem>
         <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Add to list...</DropdownMenuItem>
+        <DropdownMenuItem>Add to list...</DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Apply risk level...</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>Apply tag...</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup value={person.risk.toString()}>
-              {risk.map((riskLevel) => (
+              {tags.map((tag) => (
                 <DropdownMenuRadioItem
                   className="flex items-center gap-2"
-                  key={riskLevel.value}
-                  value={riskLevel.value}
+                  key={tag.value}
+                  value={tag.value}
+                  onClick={applyTag(tag.value)}
                 >
-                  <riskLevel.icon className="size-4" /> {riskLevel.label}
+                  <tag.icon className="size-4" /> {tag.label}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>

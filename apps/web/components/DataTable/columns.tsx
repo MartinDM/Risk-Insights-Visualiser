@@ -127,6 +127,21 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     },
   },
   {
+    id: 'actions',
+    cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
+  },
+  {
+    accessorKey: 'tagged',
+    header: ({ column }: { column: Column<Person> }) => (
+      <DataTableColumnHeader column={column} title="Tagged" />
+    ),
+    sortingFn: 'alphanumeric',
+    cell: ({ row }: { row: Row<Person> }) => {
+      const tagged = row.getValue('tagged') as Person['tagged'];
+      return <div className="font-medium">{tagged}</div>;
+    },
+  },
+  {
     accessorKey: 'location',
     header: ({ column }: { column: Column<Person> }) => (
       <DataTableColumnHeader column={column} title="Location" />
@@ -181,10 +196,7 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     sortingFn: 'datetime',
     filterFn: dateRangeFilter,
   },
-  {
-    id: 'actions',
-    cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
-  },
+
   {
     accessorKey: 'bio',
     enableSorting: false,
