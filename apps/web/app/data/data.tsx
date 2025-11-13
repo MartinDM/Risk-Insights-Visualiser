@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { ArrowDown, ArrowRight, ArrowUp, CircleOff, Timer } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  UserSearch,
+  WifiOff,
+  Navigation,
+} from 'lucide-react';
 
 export const personSchema = z.object({
   id: z.string(),
@@ -20,19 +27,19 @@ export const personSchema = z.object({
 
 export const tags = [
   {
-    value: 'transit',
+    value: 'In transit',
     label: 'In transit',
-    icon: CircleOff,
+    icon: Navigation,
   },
   {
-    value: 'offGrid',
+    value: 'Off grid',
     label: 'Off grid',
-    icon: CircleOff,
+    icon: WifiOff,
   },
   {
-    value: 'review',
+    value: 'For review',
     label: 'For review',
-    icon: Timer,
+    icon: UserSearch,
   },
 ];
 

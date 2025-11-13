@@ -7,28 +7,30 @@ import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-import { tags } from '../../data';
-import { personSchema } from '../../data';
+import { tags } from '../../app/data/data';
+import { personSchema } from '../../app/data/data';
+import { usePeople } from '@/contexts/PeopleContext';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-const applyTag = (value, personId) => {};
-
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const person = personSchema.parse(row.original);
+  const { addTagToPerson } = usePeople();
+
+  const applyTag = (tagValue: string) => {
+    addTagToPerson(person.id, { tag: tagValue });
+  };
 
   return (
     <DropdownMenu>
@@ -52,7 +54,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
                   className="flex items-center gap-2"
                   key={tag.value}
                   value={tag.value}
-                  onClick={applyTag(tag.value)}
+                  onClick={() => applyTag(tag.value)}
                 >
                   <tag.icon className="size-4" /> {tag.label}
                 </DropdownMenuRadioItem>
@@ -61,10 +63,10 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        {/* <DropdownMenuItem variant="destructive">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
