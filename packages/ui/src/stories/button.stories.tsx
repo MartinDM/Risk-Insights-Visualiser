@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { Button } from '../components/button';
+import { Button } from '../components/button.js';
 
 const meta = {
   title: 'UI/Button',
@@ -24,7 +24,7 @@ const meta = {
     variant: 'default',
     size: 'default',
     onClick: fn(),
-  }, 
+  },
 } satisfies Meta<typeof Button>;
 
 export default meta;
