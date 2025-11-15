@@ -4,12 +4,11 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { DataTableViewOptions } from './data-table-view-options';
 
-import { risk } from '../../data';
+import { risk } from '../../app/data/data';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
-import { useTable } from "@/contexts/TableContext";
+import { useTable } from '@/contexts/TableContext';
 
 export function DataTableToolbar() {
-
   const { table } = useTable();
   const isFiltered = table.getState().columnFilters.length > 0;
   const riskColumn = table.getColumn('risk');

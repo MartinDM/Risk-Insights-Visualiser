@@ -1,9 +1,7 @@
 'use client';
 import { Person } from '@/app/types/person';
-import { dateRangeFilter } from '@/app/utils/helpers';
 import { Column, ColumnDef, Row, Table } from '@tanstack/react-table';
 import { Info } from 'lucide-react';
-
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import {
   Tooltip,
@@ -11,12 +9,26 @@ import {
   TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
 import { DataTableColumnHeader } from './data-table-column-header';
-import { DataTableRowActions } from './data-table-row-actions';
+import { Badge } from '@workspace/ui/components/badge';
+import { dateRangeFilter } from '@/app/utils/helpers';
+import { tags } from '@/app/data/data';
 
 const getRiskByScore = (risk: number) => {
   if (risk < 33) return 'Low';
   if (risk < 66) return 'Medium';
   return 'High';
+};
+
+const getTagColor = (tagValue: string): string => {
+  const tagColors = [
+    'bg-blue-500 hover:bg-blue-600 text-white', // 0: In transit
+    'bg-purple-500 hover:bg-purple-600 text-white', // 1: Off grid
+    'bg-orange-500 hover:bg-orange-600 text-white', // 2: For review
+  ];
+
+  const index = tags.findIndex((tag) => tag.value === tagValue);
+
+  return tagColors[index] ?? 'bg-gray-500 hover:bg-gray-600 text-white';
 };
 
 /* ==== ColumnHelper migration (step 1 & 2) ==================================
@@ -95,6 +107,13 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     },
     sortingFn: 'alphanumeric',
   },
+  // {
+  //   id: 'actions',
+  //   header: ({ column }: { column: Column<Person> }) => (
+  //     <DataTableColumnHeader column={column} title="Actions" />
+  //   ),
+  //   cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
+  // },
   {
     accessorKey: 'name',
     header: ({ column }: { column: Column<Person> }) => (
@@ -124,6 +143,21 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     sortingFn: 'alphanumeric',
     filterFn: (row, id, value) => {
       return value.includes(getRiskByScore(row.getValue(id) as number));
+    },
+  },
+
+  {
+    accessorKey: 'tag',
+    header: ({ column }: { column: Column<Person> }) => (
+      <DataTableColumnHeader column={column} title="Tagged" />
+    ),
+    sortingFn: 'alphanumeric',
+    cell: ({ row }: { row: Row<Person> }) => {
+      const tagged = row.getValue('tag') as Person['tag'];
+      if (!tagged) return null;
+
+      const tagColor = getTagColor(tagged);
+      return <Badge className={tagColor}>{tagged}</Badge>;
     },
   },
   {
@@ -181,10 +215,7 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     sortingFn: 'datetime',
     filterFn: dateRangeFilter,
   },
-  {
-    id: 'actions',
-    cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
-  },
+
   {
     accessorKey: 'bio',
     enableSorting: false,

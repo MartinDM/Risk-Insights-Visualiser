@@ -1,25 +1,24 @@
 'use client';
-
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
-
 import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
+  DropdownMenuShortcut,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
+  DropdownMenuItem,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 
-import { risk } from '../../data';
-import { personSchema } from '../../data';
+import { tags } from '../../app/data/data';
+import { personSchema } from '../../app/data/data';
+import { usePeople } from '@/contexts/PeopleContext';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -27,6 +26,12 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const person = personSchema.parse(row.original);
+  const { editTagById } = usePeople();
+
+  // If tagValue is provided, set it. If omitted/undefined, explicitly clear to null.
+  const applyTag = (tagValue?: string) => {
+    editTagById([person.id], { tag: tagValue ?? null });
+  };
 
   return (
     <DropdownMenu>
@@ -37,28 +42,29 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
+        {/* <DropdownMenuItem>Edit</DropdownMenuItem>
         <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Add to list...</DropdownMenuItem>
+        <DropdownMenuItem>Add to list...</DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Apply risk level...</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>Apply tag...</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup value={person.risk.toString()}>
-              {risk.map((riskLevel) => (
+              {tags.map((tag) => (
                 <DropdownMenuRadioItem
                   className="flex items-center gap-2"
-                  key={riskLevel.value}
-                  value={riskLevel.value}
+                  key={tag.value}
+                  value={tag.value}
+                  onClick={() => applyTag(tag.value)}
                 >
-                  <riskLevel.icon className="size-4" /> {riskLevel.label}
+                  <tag.icon className="size-4" /> {tag.label}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem onClick={() => applyTag()} variant="destructive">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

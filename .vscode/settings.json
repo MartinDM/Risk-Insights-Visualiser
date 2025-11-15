@@ -54,7 +54,8 @@
   "eslint.lintTask.enable": true,
   "eslint.run": "onType",
   // Enable flat config support (required since repo uses eslint.config.mjs)
-  "eslint.experimental.useFlatConfig": true,
+  // Use stable Flat Config support (requires ESLint >= 8.57)
+  "eslint.useFlatConfig": true,
   // Show full problems (avoid quiet mode)
   "eslint.quiet": false,
   "eslint.workingDirectories": ["./apps/web"],
@@ -70,17 +71,15 @@
   "editor.formatOnType": false,
   // Consolidated codeActionsOnSave settings
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "never", // keep explicit control of imports
+    // Do NOT auto-organize imports on save (prevents removal of unused imports by TS/organize imports)
+    "source.organizeImports": "never",
+    // Only run ESLint fixes when explicitly invoked (avoid plugins that remove unused imports/vars on save)
     "source.fixAll.eslint": "explicit"
   },
   // ==== PRETTIER INTEGRATION ====
   // Use Prettier as the default formatter for supported languages
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  // Ensure Prettier runs before ESLint fix (ESLint will then fix lint-specific issues)
-  // Run ESLint fixes explicitly (Prettier handles formatting)
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
+  // Ensure Prettier handles formatting; ESLint fixes are manual-only per the consolidated codeActionsOnSave above
   // Optional: per-language override if needed later
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

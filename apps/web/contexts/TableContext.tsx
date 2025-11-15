@@ -90,10 +90,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
     ...features,
   });
 
-  const selectionCount = useMemo(
-    () => table.getSelectedRowModel().rows.length,
-    [rowSelection, table],
-  );
+  const selectionCount = useMemo(() => table.getSelectedRowModel().rows.length, [table]);
 
   // Apply date range filter to DOB column when dateRange changes
   useEffect(() => {

@@ -16,9 +16,11 @@ import {
   Briefcase,
   Eye,
   EyeOff,
+  Delete,
   Globe,
   MapPin,
   Settings2,
+  Tag,
   User,
   Users,
 } from 'lucide-react';
@@ -28,15 +30,20 @@ import { Person } from '../../app/types/person';
 import { ProfileModal } from '../Modals/ProfileModal';
 import { usePeople } from '@/contexts/PeopleContext';
 import { useTable } from '@/contexts/TableContext';
+import { tags } from '../../app/data/data';
 
 export function DataTableViewOptions() {
   const { table, setValsHidden, valsHidden, selectionCount } = useTable();
-  const { refresh, selectedIds, setSelectedIds } = usePeople();
+  const { refresh, selectedIds, editTagById, setSelectedIds } = usePeople();
   const router = useRouter();
   const [openInsights, setOpenInsights] = useState<boolean>(false);
   const [openPersonModal, setOpenPersonModal] = useState<boolean>(false);
 
   const rowSelection = table.getState().rowSelection;
+
+  const applyTag = (tagValue?: string) => {
+    editTagById(selectedIds, { tag: tagValue && null });
+  };
 
   useEffect(() => {
     const rows = table.getSelectedRowModel().rows;
@@ -93,70 +100,110 @@ export function DataTableViewOptions() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {selectedIds.length === 0 ? (
-        <Button disabled variant="outline" size="sm" className="h-8 border-dashed">
-          <Settings2 />
-          Insights (0)
-        </Button>
-      ) : (
-        <DropdownMenu open={openInsights} onOpenChange={setOpenInsights}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 border-dashed">
-              <BarChart3 className="h-4 w-4" />
-              Insights ({selectionCount})
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64" align="start">
-            {selectionCount === 1 ? (
-              <>
-                <DropdownMenuLabel className="flex items-center gap-2 ">
-                  <User className="h-4 w-4" />
-                  <strong>Individual Insights</strong>
-                </DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Link className="flex cursor-default" href={`risk/${selectedIds[0]}`}>
-                      <Briefcase className="mr-2 h-4 text-cyan-600" />
-                      Risk Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link className="flex cursor-default" href={`map/${selectedIds[0]}`}>
-                      <MapPin className="mr-2 h-4 w-4 text-cyan-600" />
-                      Map Visualiser
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    handlePersonProfile();
-                  }}
-                >
-                  <Eye className="mr-2 h-4 w-4 text-cyan-600" />
-                  View Full Profile
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            disabled={selectionCount === 0}
+            variant="outline"
+            size="sm"
+            className="h-8 border-dashed"
+          >
+            <Tag className="h-4 w-4" />
+            Apply tags ({selectionCount})
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuLabel>Apply tags to selected</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            {tags.map((tag) => (
+              <DropdownMenuItem
+                key={tag.value}
+                onSelect={(e) => {
+                  e.preventDefault();
+                  applyTag(tag.value);
+                }}
+              >
+                <tag.icon className="mr-2 h-4 w-4" /> {tag.label}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => {
+                e.preventDefault();
+                applyTag();
+              }}
+            >
+              <Delete className="mr-2 h-4 w-4" /> Clear tags
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu open={openInsights} onOpenChange={setOpenInsights}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            disabled={selectionCount === 0}
+            variant="outline"
+            size="sm"
+            className="h-8 border-dashed"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Insights ({selectionCount})
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-64" align="start">
+          {selectionCount === 1 ? (
+            <>
+              <DropdownMenuLabel className="flex items-center gap-2 ">
+                <User className="h-4 w-4" />
+                <strong>Individual Insights</strong>
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link className="flex cursor-default" href={`risk/${selectedIds[0]}`}>
+                    <Briefcase className="mr-2 h-4 text-cyan-600" />
+                    Risk Profile
+                  </Link>
                 </DropdownMenuItem>
-              </>
-            ) : (
-              // Multiple people selected - show group insights
-              <>
-                <DropdownMenuLabel className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Group Insights
-                </DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={handleGroupInsights}>
-                    <Globe className="mr-2 h-4 w-4" />
-                    Geographic Distribution
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+                <DropdownMenuItem>
+                  <Link className="flex cursor-default" href={`map/${selectedIds[0]}`}>
+                    <MapPin className="mr-2 h-4 w-4 text-cyan-600" />
+                    Map Visualiser
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  handlePersonProfile();
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4 text-cyan-600" />
+                View Full Profile
+              </DropdownMenuItem>
+            </>
+          ) : (
+            // Multiple people selected - show group insights
+            <>
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Group Insights
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={handleGroupInsights}>
+                  <Globe className="mr-2 h-4 w-4" />
+                  Geographic Distribution
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button
         variant="outline"
         onClick={() => {
