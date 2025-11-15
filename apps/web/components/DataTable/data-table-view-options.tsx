@@ -41,9 +41,8 @@ export function DataTableViewOptions() {
 
   const rowSelection = table.getState().rowSelection;
 
-  const applyTag = (tagValue: string) => {
-    // Apply to all currently selected ids
-    editTagById(selectedIds, { tag: tagValue });
+  const applyTag = (tagValue?: string) => {
+    editTagById(selectedIds, { tag: tagValue && null });
   };
 
   useEffect(() => {
@@ -134,7 +133,7 @@ export function DataTableViewOptions() {
               variant="destructive"
               onSelect={(e) => {
                 e.preventDefault();
-                applyTag(null);
+                applyTag();
               }}
             >
               <Delete className="mr-2 h-4 w-4" /> Clear tags
@@ -155,11 +154,7 @@ export function DataTableViewOptions() {
             Insights ({selectionCount})
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          disabled={selectionCount === 1}
-          className="w-64"
-          align="start"
-        >
+        <DropdownMenuContent className="w-64" align="start">
           {selectionCount === 1 ? (
             <>
               <DropdownMenuLabel className="flex items-center gap-2 ">

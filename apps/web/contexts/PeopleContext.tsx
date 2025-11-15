@@ -25,6 +25,8 @@ type PeopleContextType = {
   refresh: () => void;
 };
 
+type PersonUpdates = Partial<Person>;
+
 const PeopleContext = createContext<PeopleContextType | undefined>(undefined);
 
 export function PeopleProvider({ children }: { children: ReactNode }) {

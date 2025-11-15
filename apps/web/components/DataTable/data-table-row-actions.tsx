@@ -28,8 +28,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   const person = personSchema.parse(row.original);
   const { editTagById } = usePeople();
 
-  const applyTag = (tagValue: string) => {
-    editTagById([person.id], { tag: tagValue });
+  // If tagValue is provided, set it. If omitted/undefined, explicitly clear to null.
+  const applyTag = (tagValue?: string) => {
+    editTagById([person.id], { tag: tagValue ?? null });
   };
 
   return (
@@ -63,7 +64,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => applyTag(null)} variant="destructive">
+        <DropdownMenuItem onClick={() => applyTag()} variant="destructive">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

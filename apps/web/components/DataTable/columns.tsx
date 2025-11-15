@@ -9,7 +9,6 @@ import {
   TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
 import { DataTableColumnHeader } from './data-table-column-header';
-import { DataTableRowActions } from './data-table-row-actions';
 import { Badge } from '@workspace/ui/components/badge';
 import { dateRangeFilter } from '@/app/utils/helpers';
 import { tags } from '@/app/data/data';

@@ -168,7 +168,8 @@ export type Person = {
   id: string;
   name: string;
   risk: number;
-  tag?: string;
+  // Tag can be a string or explicitly null to represent "cleared"
+  tag?: string | null;
   accountNumber: string;
   salary: number;
   bio: string;
