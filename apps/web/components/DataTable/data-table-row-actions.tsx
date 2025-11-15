@@ -1,13 +1,13 @@
 'use client';
-
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
-
 import { Button } from '@workspace/ui/components/button';
 import {
   DropdownMenu,
+  DropdownMenuShortcut,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
+  DropdownMenuItem,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
@@ -26,10 +26,10 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const person = personSchema.parse(row.original);
-  const { addTagToPerson } = usePeople();
+  const { editTagById } = usePeople();
 
   const applyTag = (tagValue: string) => {
-    addTagToPerson(person.id, { tag: tagValue });
+    editTagById([person.id], { tag: tagValue });
   };
 
   return (
@@ -63,10 +63,10 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        {/* <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem onClick={() => applyTag(null)} variant="destructive">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem> */}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

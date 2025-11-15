@@ -18,7 +18,7 @@ type PeopleContextType = {
   isLoading: boolean;
   error: unknown;
   selectedIds: string[];
-  addTagToPerson: (id: string, updates: Partial<Person>) => void;
+  editTagById: (ids: string[], updates: Partial<Person>) => void;
   setSelectedIds: (ids: string[]) => void;
   selectedPeople: Person[];
   getPersonById: (id: string) => Person | undefined;
@@ -38,24 +38,28 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
   }, [queryData]);
 
   const mutation = useMutation({
-    // Returns the updates immediately in-state
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Person> }) => {
-      console.log('Updating person:', id, 'with updates:', updates);
-      // Simulate a tiny delay for use with the mutation pattern
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return { id, ...updates };
+    // Simulate a server update for multiple ids
+    mutationFn: async ({ ids, updates }: { ids: string[]; updates: PersonUpdates }) => {
+      console.log('Updating people:', ids, 'with updates:', updates);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return { ids, updates };
     },
 
-    // Update state immediately - runs before mutationFn - Used for applying the update optimistically
-    // before waiting for the async operation to complete
-    onMutate: async ({ id, updates }: { id: string; updates: Partial<Person> }) => {
-      console.log('⚡ Applying update');
-
-      // Cancel any outgoing refetches
+    // Optimistic update for all ids provided
+    onMutate: async ({ ids, updates }: { ids: string[]; updates: PersonUpdates }) => {
+      console.log('⚡ Applying update to ids:', ids);
+      // Cancel any outgoing refetches to avoid clobbering
       await queryClient.cancelQueries({ queryKey: ['people'] });
 
-      // Update the UI
-      setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+      // Update local context state
+      setPeople((prev) =>
+        prev.map((p) => (ids.includes(p.id) ? { ...p, ...updates } : p)),
+      );
+
+      // Keep React Query cache in sync (if other consumers read directly from the cache)
+      queryClient.setQueryData<Person[] | undefined>(['people'], (prev) =>
+        prev ? prev.map((p) => (ids.includes(p.id) ? { ...p, ...updates } : p)) : prev,
+      );
     },
 
     onSuccess: () => {
@@ -68,10 +72,10 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
     [people, selectedIds],
   );
 
-  const addTagToPerson = useCallback(
-    (id: string, updates: Partial<Person>) => {
+  const editTagById = useCallback(
+    (ids: string[], updates: Partial<Person>) => {
       // Trigger the mutation (which handles optimistic update in onMutate)
-      mutation.mutate({ id, updates });
+      mutation.mutate({ ids, updates });
     },
     [mutation],
   );
@@ -90,7 +94,7 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
     isLoading,
     error,
     selectedIds,
-    addTagToPerson,
+    editTagById,
     setSelectedIds,
     selectedPeople,
     getPersonById,

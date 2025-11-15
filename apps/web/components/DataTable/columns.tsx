@@ -108,13 +108,13 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     },
     sortingFn: 'alphanumeric',
   },
-  {
-    id: 'actions',
-    header: ({ column }: { column: Column<Person> }) => (
-      <DataTableColumnHeader column={column} title="Actions" />
-    ),
-    cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
-  },
+  // {
+  //   id: 'actions',
+  //   header: ({ column }: { column: Column<Person> }) => (
+  //     <DataTableColumnHeader column={column} title="Actions" />
+  //   ),
+  //   cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
+  // },
   {
     accessorKey: 'name',
     header: ({ column }: { column: Column<Person> }) => (

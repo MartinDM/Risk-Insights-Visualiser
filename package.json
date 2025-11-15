@@ -6,7 +6,6 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "check-types": "turbo run check-types",
-    "vet": "turbo run lint check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "build:web": "pnpm --filter web build",
     "dev:web": "pnpm --filter web dev",
