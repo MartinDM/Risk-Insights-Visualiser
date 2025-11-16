@@ -41,8 +41,9 @@ export function DataTableViewOptions() {
 
   const rowSelection = table.getState().rowSelection;
 
-  const applyTag = (tagValue?: string) => {
-    editTagById(selectedIds, { tag: tagValue && null });
+  // Set provided tag, or clear when undefined/null
+  const applyTag = (tagValue?: string | null) => {
+    editTagById(selectedIds, { tag: tagValue ?? null });
   };
 
   useEffect(() => {

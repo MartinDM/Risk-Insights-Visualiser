@@ -12,6 +12,7 @@ import { DataTableColumnHeader } from './data-table-column-header';
 import { Badge } from '@workspace/ui/components/badge';
 import { dateRangeFilter } from '@/app/utils/helpers';
 import { tags } from '@/app/data/data';
+import { DataTableRowActions } from './data-table-row-actions';
 
 const getRiskByScore = (risk: number) => {
   if (risk < 33) return 'Low';
@@ -107,13 +108,13 @@ export const getColumns = (valsHidden: boolean): ColumnDef<Person>[] => [
     },
     sortingFn: 'alphanumeric',
   },
-  // {
-  //   id: 'actions',
-  //   header: ({ column }: { column: Column<Person> }) => (
-  //     <DataTableColumnHeader column={column} title="Actions" />
-  //   ),
-  //   cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
-  // },
+  {
+    id: 'actions',
+    header: ({ column }: { column: Column<Person> }) => (
+      <DataTableColumnHeader column={column} title="Actions" />
+    ),
+    cell: ({ row }: { row: Row<Person> }) => <DataTableRowActions row={row} />,
+  },
   {
     accessorKey: 'name',
     header: ({ column }: { column: Column<Person> }) => (

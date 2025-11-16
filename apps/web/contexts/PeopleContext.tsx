@@ -76,6 +76,7 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
 
   const editTagById = useCallback(
     (ids: string[], updates: Partial<Person>) => {
+      console.log(updates);
       // Trigger the mutation (which handles optimistic update in onMutate)
       mutation.mutate({ ids, updates });
     },
